@@ -3,15 +3,14 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>아이콩콩 견적 템플릿</title>
+  <title>견적 템플릿 (아이콩콩 ↔ 까사플로아)</title>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif; margin: 0; background:#f6f7f9; }
-    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 16px; }
     .card { background:#fff; border-radius: 14px; padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); margin-bottom: 12px; }
     h1 { font-size: 18px; margin: 0 0 10px; }
     h2 { font-size: 14px; margin: 0 0 8px; color:#333; }
     .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
     label { display:block; font-size: 12px; color:#555; margin-bottom: 4px; }
     input, select, textarea {
       width: 100%; box-sizing: border-box;
@@ -19,31 +18,44 @@
       border: 1px solid #d9dde3; background: #fff;
       font-size: 14px;
     }
-    textarea { min-height: 240px; resize: vertical; }
-    .row { display:flex; gap: 10px; flex-wrap: wrap; }
+    textarea { min-height: 260px; resize: vertical; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
     button {
       border: 0; padding: 10px 14px; border-radius: 12px;
       background:#111; color:#fff; font-size: 14px; cursor:pointer;
     }
     button.secondary { background:#e9ecf1; color:#111; }
+    button.tab { background:#e9ecf1; color:#111; }
+    button.tab.active { background:#111; color:#fff; }
     .hint { font-size: 12px; color:#666; margin-top: 6px; }
     .mini { font-size: 12px; color:#666; }
     .ok { color: #0a7; font-weight: 600; }
+    .muted { color:#999; }
   </style>
 </head>
 <body>
   <div class="wrap">
+
     <div class="card">
-      <h1>🤗 아이콩콩 견적 템플릿</h1>
-      <div class="mini">고객정보 직접 입력 + 1200/600 장수만 입력 → 자동 라인 생성 & 멘트 출력</div>
+      <h1>견적 템플릿 🔁 (아이콩콩 ↔ 까사플로아)</h1>
+      <div class="row">
+        <button id="btnTplIkong" class="tab active">아이콩콩 양식</button>
+        <button id="btnTplCasa" class="tab">까사플로아 양식</button>
+        <span class="mini">현재 선택: <b id="tplLabel">아이콩콩</b></span>
+      </div>
+      <div class="mini muted" style="margin-top:8px;">고객정보 직접입력 + 1200/600 장수 입력 → 템플릿만 버튼으로 변환</div>
     </div>
 
     <div class="card">
       <h2>고객/현장 정보</h2>
       <div class="grid">
         <div>
-          <label>고객명</label>
-          <input id="customerName" placeholder="이름을입력하세요" />
+          <label>성함(고객명)</label>
+          <input id="customerName" placeholder="홍길동" />
+        </div>
+        <div>
+          <label>번호(선택)</label>
+          <input id="phone" placeholder="010-0000-0000" />
         </div>
         <div>
           <label>현장명(아파트/현장)</label>
@@ -51,20 +63,20 @@
         </div>
         <div>
           <label>평형타입</label>
-          <input id="pyeongType" placeholder="33A" />
+          <input id="pyeongType" placeholder="33A / 34평" />
         </div>
         <div>
           <label>확장여부</label>
           <select id="extension">
             <option value="확장">확장</option>
             <option value="비확장">비확장</option>
+            <option value="베확장">베확장</option>
           </select>
         </div>
-      </div>
-
-      <div style="margin-top:10px;">
-        <label>시공범위 (쉼표로 구분)</label>
-        <input id="areas" placeholder="거실, 복도, 주방" />
+        <div>
+          <label>시공범위/시공공간 (쉼표로 구분)</label>
+          <input id="areas" placeholder="거실, 복도, 주방" />
+        </div>
       </div>
     </div>
 
@@ -73,17 +85,14 @@
       <div class="grid">
         <div>
           <label>1200 장수</label>
-          <input id="qty1200" type="number" min="0" step="0.5" placeholder="29" />
+          <input id="qty1200" type="number" min="0" step="0.5" placeholder="24" />
           <div class="hint">※ 0.5 입력 가능 (예: 28.5)</div>
         </div>
         <div>
           <label>600 장수</label>
-          <input id="qty600" type="number" min="0" step="1" placeholder="117" />
-          <div id="hint600" style="font-size:12px; color:#999; margin-top:4px;">
-            예상 600장수: -
-  </div>
-  
-</div>
+          <input id="qty600" type="number" min="0" step="1" placeholder="114" />
+          <div id="hint600" class="hint" style="color:#999;">예상 600장수(1200×4): -</div>
+        </div>
       </div>
 
       <div class="row" style="margin-top:12px;">
@@ -99,38 +108,29 @@
       <textarea id="output" readonly placeholder="견적 생성 버튼을 누르면 여기에 문구가 생성됩니다."></textarea>
     </div>
 
-    <div class="card">
-      <h2>프리셋(현재 고정)</h2>
-      <div class="mini">
-        1200 라인(수량=1200장수):<br/>
-        - 화이트마블색상특가1200(24T) / 100,000원<br/>
-        - 프리미엄 1200 (24T) / <b>110,000원</b><br/>
-        - 프리미엄 TPU 리퍼브 / <b>98,000원</b><br/>
-        - 스킨퓨어 1200 (24T) / 120,000원<br/><br/>
-        - 스킨퓨어 1200 리퍼브 (24T) / 107,000원<br/><br/>
-        600 라인(수량=600장수):<br/>
-        - 프리미엄TPU 600 (22T) / 22,000원<br/>
-        - 스킨퓨어 600 (22T) / 25,000원
-      </div>
-    </div>
   </div>
 
 <script>
-  // === 고정 프리셋 ===
-const PRESET_1200 = [
-  { name: "*1200사이즈 프리미엄 TPU 리퍼브", unitPrice: 98000 },
-  { name: "1200사이즈 프리미엄 TPU 화이트마블 색상 특가 프로모션", unitPrice: 100000 },
-  { name: "1200사이즈 프리미엄 TPU 박람회 할인", unitPrice: 110000 },
-  { name: "*1200사이즈 스킨퓨어 리퍼브", unitPrice: 107000 },
-  { name: "1200 스킨퓨어 박람회 할인", unitPrice: 120000 },
-];
+  // =========================
+  // 1) 프리셋 / 고정문구
+  // =========================
 
-  const PRESET_600 = [
+  // 아이콩콩: 1200 (5줄 고정)
+  const IKONG_1200 = [
+    { name: "⭐1200사이즈 프리미엄 TPU 리퍼브", unitPrice: 98000, qtyLineStyle: "소요" },
+    { name: "⭐1200사이즈 프리미엄 TPU 화이트마블 색상 특가 프로모션", unitPrice: 100000, qtyLineStyle: "소요" },
+    { name: "*1200사이즈 프리미엄 TPU 박람회 할인", unitPrice: 110000, qtyLineStyle: "변동" },
+    { name: "⭐1200사이즈 스킨퓨어 리퍼브", unitPrice: 107000, qtyLineStyle: "변동" },
+    { name: "*1200 스킨퓨어 박람회 할인", unitPrice: 120000, qtyLineStyle: "변동" },
+  ];
+
+  // 아이콩콩: 600 (원하면 여기만 바꾸면 됨)
+  const IKONG_600 = [
     { name: "프리미엄TPU 600 (22T)", unitPrice: 22000 },
     { name: "스킨퓨어 600 (22T)", unitPrice: 25000 },
   ];
 
-  const NOTICE = [
+  const IKONG_NOTICE = [
 `💌 견적상 예상장수는 시공시
 변경될수 있으며 사용된
 장수에 따라
@@ -148,76 +148,222 @@ const PRESET_1200 = [
 언제든지 문의주세요❣`
   ].join("\n\n");
 
+  // 까사플로아 프리셋
+  const CASA_600 = [
+    { title: "💕클래식600 (22T)", size: "60cmx60cmx2.2cm", unitPrice: 22000 },
+    { title: "💕클래식스킨퓨어600 (22T)", size: "60cmx60cmx2.2cm", unitPrice: 25000 },
+  ];
+
+  const CASA_1200 = [
+    { title: "💕프리미엄1200 (24T)", size: "120cmx120cmx2.4cm", unitPrice: 109000, tail: "(행사가 장당 109,000원)" },
+    { title: "💕스킨퓨어1200 (24T)", size: "120cmx120cmx2.4cm", unitPrice: 119000, tail: "(행사가 장당 119,000원)" },
+    { title: "★프리미엄1200 (24T)특판", size: "120cmx120cmx2.4cm", unitPrice: 100000, tail: "☞까사스페인컬러 한정" },
+  ];
+
+  const CASA_NOTICE =
+`☑️프리미엄&클래식: 크림톤, 베이지, 그레이, 스페인(특판)
+
+☑️스킨퓨어: 베이지
+
+☑️예상수량은 800가구 이상의 평균데이터 및 온라인도면을 통해 산출된 양으로, 실제시공시 약간의 오차범위 발생될 수 있습니다
+
+☑️실제시공시 들어간 장수만큼만 체크해 결제가 진행되겠습니다.
+
+☑️계약금은 0원입니다. 스케쥴 배정후, 시공당일 결제가 진행되겠습니다
+
+☑️펜트리가 존재할 경우 미리 말씀주시면, 펜트리 전용매트도 지참후 방문드리겠습니다
+
+☑️프로모션은 현금기준이며, 카드/현금영수증/세금계산서 발급시 부득이하게 vat 10% 발생되는 점 참조부탁드립니다
+
+☑️프로모션은 시공일 기준이 아닌, 예약일 기준으로 적용 고정되겠습니다
+
+☑️전문시공서비스 & 출장비는 모두 무료입니다
+
+☑️타브랜드 전문시공 기사님들도 인정한 매트품질! 까사플로아를 통해 후회없는 선택과 중복지출을 예방하세요♥`;
+
+  // =========================
+  // 2) 유틸
+  // =========================
   const $ = (id) => document.getElementById(id);
 
   function formatWon(n) {
-    // n can be float (ex: 28.5 * 110000)
-    const rounded = Math.round((Number(n) + Number.EPSILON) * 1) / 1;
+    const v = Number(n);
+    if (!isFinite(v)) return "0원";
+    const rounded = Math.round((v + Number.EPSILON) * 1) / 1;
     return rounded.toLocaleString("ko-KR") + "원";
   }
 
   function formatQty(qty, unit="장") {
-    // 28.5 -> "28.5장"
     const v = Number(qty);
     if (!isFinite(v)) return `0${unit}`;
     const s = (Math.round(v*10) % 10 === 0) ? String(Math.round(v)) : String(v);
     return `${s}${unit}`;
   }
 
-  function buildItemBlock(items) {
-    return items.map(it => {
-      return `🔖${it.name}
-
-* 박람회특가 장당 : ${formatWon(it.unitPrice)}
-* 예상수량 : ${formatQty(it.qty)}
-* 총금액 : ${formatWon(it.total)}`;
-    }).join("\n\n");
+  function safeNum(v) {
+    const n = Number(v);
+    return (isFinite(n) && n > 0) ? n : 0;
   }
 
-  function generate() {
-    const customerName = $("customerName").value.trim() || "홍길동";
-    const siteName = $("siteName").value.trim() || "동동주아파트";
-    const pyeongType = $("pyeongType").value.trim() || "33A";
+  function collectInput() {
+    const customerName = $("customerName").value.trim() || "님";
+    const phone = $("phone").value.trim();
+    const siteName = $("siteName").value.trim() || "";
+    const pyeongType = $("pyeongType").value.trim() || "";
     const extension = $("extension").value;
-    const areasRaw = $("areas").value.trim() || "거실, 복도, 주방";
-    const areasJoined = areasRaw.split(",").map(s=>s.trim()).filter(Boolean).join(", ");
+    const areasRaw = $("areas").value.trim() || "";
+    const areasJoined = areasRaw ? areasRaw.split(",").map(s=>s.trim()).filter(Boolean).join(", ") : "";
 
-    const qty1200 = Number($("qty1200").value);
-    const qty600 = Number($("qty600").value);
+    const qty1200 = safeNum($("qty1200").value);
+    const qty600 = safeNum($("qty600").value);
 
-    const safeQty1200 = isFinite(qty1200) && qty1200 > 0 ? qty1200 : 0;
-    const safeQty600 = isFinite(qty600) && qty600 > 0 ? qty600 : 0;
+    return { customerName, phone, siteName, pyeongType, extension, areasJoined, qty1200, qty600 };
+  }
 
-    const items = [];
+  function setStatus(msg, good) {
+    const el = $("status");
+    el.textContent = msg;
+    el.className = "mini " + (good ? "ok" : "");
+    setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; }, 2500);
+  }
 
-    if (safeQty1200 > 0) {
-      for (const p of PRESET_1200) {
-        const total = safeQty1200 * p.unitPrice;
-        items.push({ name: p.name, unitPrice: p.unitPrice, qty: safeQty1200, total });
-      }
-    }
+  // =========================
+  // 3) 템플릿 빌더
+  // =========================
+  function buildIkongkong(data) {
+    const { customerName, siteName, pyeongType, extension, areasJoined, qty1200, qty600 } = data;
 
-    if (safeQty600 > 0) {
-      for (const p of PRESET_600) {
-        const total = safeQty600 * p.unitPrice;
-        items.push({ name: p.name, unitPrice: p.unitPrice, qty: safeQty600, total });
-      }
-    }
-
-    const itemsBlock = items.length ? buildItemBlock(items) : "(장수를 입력하면 상품 라인이 생성됩니다.)";
-
-    const out =
+    const header =
 `🤗 아이콩콩 층간소음매트
 
 🏷 고객명 : ${customerName}
-🏷 ${siteName}
-🏷 평형 : ${pyeongType} (${extension})
-🏷 시공범위 : ${areasJoined}
+${siteName ? `🏷 ${siteName}\n` : ""}${pyeongType ? `🏷 평형 : ${pyeongType} (${extension})\n` : `🏷 평형 : (${extension})\n`}${areasJoined ? `🏷 시공범위 : ${areasJoined}\n` : ""}`.trimEnd();
+
+    const blocks = [];
+
+    // 1200 라인 (5줄 고정, 장수 입력 있을 때만 생성)
+    if (qty1200 > 0) {
+      for (const p of IKONG_1200) {
+        const total = qty1200 * p.unitPrice;
+
+        // 문구는 요청한 스타일로 통일
+        const qtyLine = (p.qtyLineStyle === "소요")
+          ? `총 ${formatQty(qty1200)} 소요 예상(변동가능성 있음)`
+          : `총 ${formatQty(qty1200)}(변동가능성 있음)`;
+
+        blocks.push(
+`${p.name}
+* 장당 : ${formatWon(p.unitPrice)}
+* ${qtyLine}
+* 총 ${formatWon(total)}`
+        );
+      }
+    }
+
+    // 600 라인 (원하면 계속 사용)
+    if (qty600 > 0) {
+      for (const p of IKONG_600) {
+        const total = qty600 * p.unitPrice;
+        blocks.push(
+`🔖${p.name}
+
+* 장당 : ${formatWon(p.unitPrice)}
+* 예상수량 : ${formatQty(qty600)}
+* 총금액 : ${formatWon(total)}`
+        );
+      }
+    }
+
+    const itemsBlock = blocks.length ? blocks.join("\n\n") : "(장수를 입력하면 라인이 생성됩니다.)";
+
+    return `${header}
 
 ${itemsBlock}
 
-${NOTICE}`;
+${IKONG_NOTICE}`.trim();
+  }
 
+  function buildCasaflora(data) {
+    const { customerName, phone, pyeongType, extension, areasJoined, qty1200, qty600 } = data;
+
+    const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
+    const areasLine = areasJoined || "";
+
+    const header =
+`☀️까사플로아 층간소음매트
+✔️성함: ${customerName}
+✔️번호: ${phone}
+
+✔️평형타입: ${pyeongLine}
+✔️시공공간: ${areasLine}
+✔️본사 전문가시공 무료제공`.trim();
+
+    const blocks = [];
+
+    // 600
+    for (const p of CASA_600) {
+      const total = qty600 * p.unitPrice;
+      blocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(qty600)}
+예상금액: ${formatWon(total)}
+(행사가 장당 ${formatWon(p.unitPrice)})`
+      );
+    }
+
+    // 1200
+    for (const p of CASA_1200) {
+      const total = qty1200 * p.unitPrice;
+
+      // 특판은 꼬리 문구가 다름
+      if (p.title.includes("특판")) {
+        blocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(qty1200)}
+예상금액: ${formatWon(total)}
+(행사가 장당 ${formatWon(p.unitPrice)})
+${p.tail}`
+        );
+      } else {
+        blocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(qty1200)}
+예상금액: ${formatWon(total)}
+${p.tail}`
+        );
+      }
+    }
+
+    return `${header}
+
+${blocks.join("\n\n")}
+
+${CASA_NOTICE}`.trim();
+  }
+
+  // =========================
+  // 4) 템플릿 전환 버튼
+  // =========================
+  let currentTemplate = "ikong"; // "ikong" | "casa"
+
+  function setTemplate(tpl) {
+    currentTemplate = tpl;
+
+    const isIkong = tpl === "ikong";
+    $("btnTplIkong").classList.toggle("active", isIkong);
+    $("btnTplCasa").classList.toggle("active", !isIkong);
+    $("tplLabel").textContent = isIkong ? "아이콩콩" : "까사플로아";
+
+    // 전환 즉시 미리보기 갱신
+    generate();
+  }
+
+  function generate() {
+    const data = collectInput();
+    const out = (currentTemplate === "ikong") ? buildIkongkong(data) : buildCasaflora(data);
     $("output").value = out;
     setStatus("생성 완료", true);
   }
@@ -230,7 +376,6 @@ ${NOTICE}`;
       await navigator.clipboard.writeText(text);
       setStatus("복사 완료 ✅", true);
     } catch (e) {
-      // 클립보드 권한 막힌 경우 fallback
       $("output").focus();
       $("output").select();
       const ok = document.execCommand("copy");
@@ -241,6 +386,7 @@ ${NOTICE}`;
 
   function clearAll() {
     $("customerName").value = "";
+    $("phone").value = "";
     $("siteName").value = "";
     $("pyeongType").value = "";
     $("extension").value = "확장";
@@ -248,37 +394,39 @@ ${NOTICE}`;
     $("qty1200").value = "";
     $("qty600").value = "";
     $("output").value = "";
+    update600Hint();
     setStatus("초기화 완료", true);
   }
 
-  function setStatus(msg, good) {
-    const el = $("status");
-    el.textContent = msg;
-    el.className = "mini " + (good ? "ok" : "");
-    setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; }, 2500);
+  // =========================
+  // 5) 600 옆 흐릿한 예상장수 (1200×4)
+  // =========================
+  function update600Hint() {
+    const qty1200 = Number($("qty1200").value);
+    const hint = $("hint600");
+
+    if (isFinite(qty1200) && qty1200 > 0) {
+      hint.textContent = `예상 600장수(1200×4): ${qty1200 * 4}장`;
+    } else {
+      hint.textContent = "예상 600장수(1200×4): -";
+    }
   }
 
+  // =========================
+  // 6) 이벤트 바인딩
+  // =========================
   $("btnGenerate").addEventListener("click", generate);
   $("btnCopy").addEventListener("click", copyOutput);
   $("btnClear").addEventListener("click", clearAll);
 
-  // 입력 바뀌면 자동 미리보기 갱신(원하면 주석 해제)
-  // ["customerName","siteName","pyeongType","extension","areas","qty1200","qty600"].forEach(id=>{
-  //   $(id).addEventListener("input", generate);
-  // });
-  function update600Hint() {
-  const qty1200 = Number(document.getElementById("qty1200").value);
-  const hint = document.getElementById("hint600");
+  $("btnTplIkong").addEventListener("click", () => setTemplate("ikong"));
+  $("btnTplCasa").addEventListener("click", () => setTemplate("casa"));
 
-  if (isFinite(qty1200) && qty1200 > 0) {
-    hint.textContent = `예상 600장수: ${qty1200 * 4}장`;
-  } else {
-    hint.textContent = "예상 600장수: -";
-  }
-}
-document.getElementById("qty1200").addEventListener("input", update600Hint);
+  $("qty1200").addEventListener("input", update600Hint);
+
+  // 첫 로드
+  update600Hint();
+  generate();
 </script>
 </body>
 </html>
-
-
