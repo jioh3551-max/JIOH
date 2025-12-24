@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>아이콩콩 견적 템플릿</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif; margin: 0; background:#f6f7f9; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .card { background:#fff; border-radius: 14px; padding: 14px; box-shadow: 0 2px 10px rgba(0,0,0,.06); margin-bottom: 12px; }
+    h1 { font-size: 18px; margin: 0 0 10px; }
+    h2 { font-size: 14px; margin: 0 0 8px; color:#333; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .grid3 { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    label { display:block; font-size: 12px; color:#555; margin-bottom: 4px; }
+    input, select, textarea {
+      width: 100%; box-sizing: border-box;
+      padding: 10px; border-radius: 10px;
+      border: 1px solid #d9dde3; background: #fff;
+      font-size: 14px;
+    }
+    textarea { min-height: 240px; resize: vertical; }
+    .row { display:flex; gap: 10px; flex-wrap: wrap; }
+    button {
+      border: 0; padding: 10px 14px; border-radius: 12px;
+      background:#111; color:#fff; font-size: 14px; cursor:pointer;
+    }
+    button.secondary { background:#e9ecf1; color:#111; }
+    .hint { font-size: 12px; color:#666; margin-top: 6px; }
+    .mini { font-size: 12px; color:#666; }
+    .ok { color: #0a7; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>🤗 아이콩콩 견적 템플릿</h1>
+      <div class="mini">고객정보 직접 입력 + 1200/600 장수만 입력 → 자동 라인 생성 & 멘트 출력</div>
+    </div>
+
+    <div class="card">
+      <h2>고객/현장 정보</h2>
+      <div class="grid">
+        <div>
+          <label>고객명</label>
+          <input id="customerName" placeholder="이름을입력하세요" />
+        </div>
+        <div>
+          <label>현장명(아파트/현장)</label>
+          <input id="siteName" placeholder="아파트명" />
+        </div>
+        <div>
+          <label>평형타입</label>
+          <input id="pyeongType" placeholder="33A" />
+        </div>
+        <div>
+          <label>확장여부</label>
+          <select id="extension">
+            <option value="확장">확장</option>
+            <option value="비확장">비확장</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label>시공범위 (쉼표로 구분)</label>
+        <input id="areas" placeholder="거실, 복도, 주방" />
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>장수 입력</h2>
+      <div class="grid">
+        <div>
+          <label>1200 장수</label>
+          <input id="qty1200" type="number" min="0" step="0.5" placeholder="29" />
+          <div class="hint">※ 0.5 입력 가능 (예: 28.5)</div>
+        </div>
+        <div>
+          <label>600 장수</label>
+          <input id="qty600" type="number" min="0" step="1" placeholder="117" />
+          <div id="hint600" style="font-size:12px; color:#999; margin-top:4px;">
+            예상 600장수: -
+  </div>
+  
+</div>
+      </div>
+
+      <div class="row" style="margin-top:12px;">
+        <button id="btnGenerate">견적 생성</button>
+        <button class="secondary" id="btnCopy">복사</button>
+        <button class="secondary" id="btnClear">초기화</button>
+        <span id="status" class="mini"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>출력(카톡용)</h2>
+      <textarea id="output" readonly placeholder="견적 생성 버튼을 누르면 여기에 문구가 생성됩니다."></textarea>
+    </div>
+
+    <div class="card">
+      <h2>프리셋(현재 고정)</h2>
+      <div class="mini">
+        1200 라인(수량=1200장수):<br/>
+        - 화이트마블색상특가1200(24T) / 100,000원<br/>
+        - 프리미엄 1200 (24T) / <b>110,000원</b><br/>
+        - 스킨퓨어 1200 (24T) / 120,000원<br/><br/>
+        600 라인(수량=600장수):<br/>
+        - 프리미엄TPU 600 (22T) / 22,000원<br/>
+        - 스킨퓨어 600 (22T) / 25,000원
+      </div>
+    </div>
+  </div>
+
+<script>
+  // === 고정 프리셋 ===
+const PRESET_1200 = [
+  { name: "⭐1200사이즈 프리미엄 TPU 리퍼브", unitPrice: 98000 },
+  { name: "⭐1200사이즈 프리미엄 tpu 화이트마블 색상 특가 프로모션", unitPrice: 100000 },
+  { name: "*1200사이즈 프리미엄 tpu 박람회 할인", unitPrice: 110000 },
+  { name: "⭐1200사이즈 스킨퓨어 리퍼브", unitPrice: 107000 },
+  { name: "*1200 스킨퓨어 박람회 할인", unitPrice: 120000 },
+];
+
+  const PRESET_600 = [
+    { name: "프리미엄TPU 600 (22T)", unitPrice: 22000 },
+    { name: "스킨퓨어 600 (22T)", unitPrice: 25000 },
+  ];
+
+  const NOTICE = [
+`💌 견적상 예상장수는 시공시
+변경될수 있으며 사용된
+장수에 따라
+최종결제 진행됩니다.`,
+`💌 안내해드린 가격은 현금가
+기준으로 카드 및 현금영수증
+진행시 10% 부가세가
+발생됩니다.`,
+`💌 시공비는 무료로 진행됩니다.`,
+`💌 아이콩콩은 공장직영으로
+동일제품 공급 및 AS부분도
+문제없이 대응을 받아 보실수
+있습니다.
+🎀 다른 궁금한 내용 있으시면
+언제든지 문의주세요❣`
+  ].join("\n\n");
+
+  const $ = (id) => document.getElementById(id);
+
+  function formatWon(n) {
+    // n can be float (ex: 28.5 * 110000)
+    const rounded = Math.round((Number(n) + Number.EPSILON) * 1) / 1;
+    return rounded.toLocaleString("ko-KR") + "원";
+  }
+
+  function formatQty(qty, unit="장") {
+    // 28.5 -> "28.5장"
+    const v = Number(qty);
+    if (!isFinite(v)) return `0${unit}`;
+    const s = (Math.round(v*10) % 10 === 0) ? String(Math.round(v)) : String(v);
+    return `${s}${unit}`;
+  }
+
+  function buildItemBlock(items) {
+    return items.map(it => {
+      return `🔖${it.name}
+
+* 박람회특가 장당 : ${formatWon(it.unitPrice)}
+* 예상수량 : ${formatQty(it.qty)}
+* 총금액 : ${formatWon(it.total)}`;
+    }).join("\n\n");
+  }
+
+  function generate() {
+    const customerName = $("customerName").value.trim() || "홍길동";
+    const siteName = $("siteName").value.trim() || "동동주아파트";
+    const pyeongType = $("pyeongType").value.trim() || "33A";
+    const extension = $("extension").value;
+    const areasRaw = $("areas").value.trim() || "거실, 복도, 주방";
+    const areasJoined = areasRaw.split(",").map(s=>s.trim()).filter(Boolean).join(", ");
+
+    const qty1200 = Number($("qty1200").value);
+    const qty600 = Number($("qty600").value);
+
+    const safeQty1200 = isFinite(qty1200) && qty1200 > 0 ? qty1200 : 0;
+    const safeQty600 = isFinite(qty600) && qty600 > 0 ? qty600 : 0;
+
+    const items = [];
+
+    if (safeQty1200 > 0) {
+      for (const p of PRESET_1200) {
+        const total = safeQty1200 * p.unitPrice;
+        items.push({ name: p.name, unitPrice: p.unitPrice, qty: safeQty1200, total });
+      }
+    }
+
+    if (safeQty600 > 0) {
+      for (const p of PRESET_600) {
+        const total = safeQty600 * p.unitPrice;
+        items.push({ name: p.name, unitPrice: p.unitPrice, qty: safeQty600, total });
+      }
+    }
+
+    const itemsBlock = items.length ? buildItemBlock(items) : "(장수를 입력하면 상품 라인이 생성됩니다.)";
+
+    const out =
+`🤗 아이콩콩 층간소음매트
+
+🏷 고객명 : ${customerName}
+🏷 ${siteName}
+🏷 평형 : ${pyeongType} (${extension})
+🏷 시공범위 : ${areasJoined}
+
+${itemsBlock}
+
+${NOTICE}`;
+
+    $("output").value = out;
+    setStatus("생성 완료", true);
+  }
+
+  async function copyOutput() {
+    const text = $("output").value.trim();
+    if (!text) { setStatus("복사할 내용이 없어요", false); return; }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus("복사 완료 ✅", true);
+    } catch (e) {
+      // 클립보드 권한 막힌 경우 fallback
+      $("output").focus();
+      $("output").select();
+      const ok = document.execCommand("copy");
+      setStatus(ok ? "복사 완료 ✅" : "복사 실패(브라우저 권한 확인)", ok);
+      window.getSelection?.().removeAllRanges?.();
+    }
+  }
+
+  function clearAll() {
+    $("customerName").value = "";
+    $("siteName").value = "";
+    $("pyeongType").value = "";
+    $("extension").value = "확장";
+    $("areas").value = "";
+    $("qty1200").value = "";
+    $("qty600").value = "";
+    $("output").value = "";
+    setStatus("초기화 완료", true);
+  }
+
+  function setStatus(msg, good) {
+    const el = $("status");
+    el.textContent = msg;
+    el.className = "mini " + (good ? "ok" : "");
+    setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; }, 2500);
+  }
+
+  $("btnGenerate").addEventListener("click", generate);
+  $("btnCopy").addEventListener("click", copyOutput);
+  $("btnClear").addEventListener("click", clearAll);
+
+  // 입력 바뀌면 자동 미리보기 갱신(원하면 주석 해제)
+  // ["customerName","siteName","pyeongType","extension","areas","qty1200","qty600"].forEach(id=>{
+  //   $(id).addEventListener("input", generate);
+  // });
+  function update600Hint() {
+  const qty1200 = Number(document.getElementById("qty1200").value);
+  const hint = document.getElementById("hint600");
+
+  if (isFinite(qty1200) && qty1200 > 0) {
+    hint.textContent = `예상 600장수: ${qty1200 * 4}장`;
+  } else {
+    hint.textContent = "예상 600장수: -";
+  }
+}
+document.getElementById("qty1200").addEventListener("input", update600Hint);
+</script>
+</body>
+</html>
