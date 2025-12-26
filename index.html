@@ -286,7 +286,7 @@ ${IKONG_NOTICE}`.trim();
   }
 
   function buildCasaflora(data) {
-    const { customerName, phone, pyeongType, extension, areasJoined, qty1200, qty600 } = data;
+    const { customerName, phone,siteName, pyeongType, extension, areasJoined, qty1200, qty600 } = data;
 
     const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
     const areasLine = areasJoined || "";
@@ -432,6 +432,7 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
