@@ -92,6 +92,20 @@
           <input id="qty600" type="number" min="0" step="1" placeholder="114" />
           <div id="hint600" class="hint" style="color:#999;">예상 600장수(1200×4): -</div>
         </div>
+<div class="row" style="margin-top:10px;">
+  <label style="display:flex; gap:8px; align-items:center;">
+    <input id="optRoom" type="checkbox" />
+    방 추가(옵션)
+  </label>
+
+  <div style="flex:1; min-width:220px;">
+    <label style="margin:0 0 4px;">방 600 장수</label>
+    <input id="qty600Room" type="number" min="0" step="1" placeholder="30" disabled />
+    <div class="hint" style="color:#999;">※ 방 섹션에서만 사용</div>
+  </div>
+</div>
+
+        
       </div>
 
       <div class="row" style="margin-top:12px;">
@@ -218,7 +232,8 @@
 
     const qty1200 = safeNum($("qty1200").value);
     const qty600 = safeNum($("qty600").value);
-
+    const optRoom = $("optRoom")?.checked || false;
+    const qty600Room = safeNum($("qty600Room")?.value);
     return { customerName, phone, siteName, pyeongType, extension, areasJoined, qty1200, qty600 };
   }
 
@@ -275,7 +290,29 @@
         );
       }
     }
+// ---- 방 옵션 섹션(600만 추가 출력) ----
+if (data.optRoom && data.qty600Room > 0) {
+  const roomBlocks = [];
 
+  // 제목 줄
+  roomBlocks.push(`-방`);
+
+  // 방 600 라인(기본 600 라인업과 동일, 수량만 qty600Room)
+  for (const p of IKONG_600) {
+    const total = data.qty600Room * p.unitPrice;
+    roomBlocks.push(
+`🔖${p.name}
+
+* 장당 : ${formatWon(p.unitPrice)}
+* 예상수량 : ${formatQty(data.qty600Room)}
+* 총금액 : ${formatWon(total)}`
+    );
+  }
+
+  blocks.push(roomBlocks.join("\n\n"));
+}
+
+    
     const itemsBlock = blocks.length ? blocks.join("\n\n") : "(장수를 입력하면 라인이 생성됩니다.)";
 
     return `${header}
@@ -426,12 +463,22 @@ ${CASA_NOTICE}`.trim();
 
   $("qty1200").addEventListener("input", update600Hint);
 
+  $("optRoom")?.addEventListener("change", () => {
+  const on = $("optRoom").checked;
+  $("qty600Room").disabled = !on;
+  if (!on) $("qty600Room").value = "";
+  generate();
+});
+
+$("qty600Room")?.addEventListener("input", generate);
+
   // 첫 로드
   update600Hint();
   generate();
 </script>
 </body>
 </html>
+
 
 
 
