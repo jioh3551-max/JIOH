@@ -109,21 +109,16 @@
         <div>
           <label>시공범위/시공공간 (쉼표로 입력)</label>
           <input id="areas" list="areaList" placeholder="거실, 복도, 주방" />
-          <div class="hint muted">※ 출력에서 “-거실” 같은 형태로 상단에 표시됩니다</div>
+         
         </div>
       </div>
 
       <datalist id="areaList">
         <option value="거실">
-        <option value="복도">
-        <option value="주방">
-        <option value="안방">
-        <option value="작은방">
-        <option value="아이방">
-        <option value="알파룸">
-        <option value="펜트리">
-        <option value="현관">
-        <option value="다용도실">
+        <option value="거실,복도">
+        <option value="거실,복도,주방">
+        <option value="거실,복도,주방,방">
+       
       </datalist>
     </div>
 
@@ -575,3 +570,4 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
