@@ -328,7 +328,7 @@
 🏷 고객명 : ${customerName}
 ${siteName ? `🏷 현장명 : ${siteName}\n` : ""}🏷 평형 : ${pyeongType ? `${pyeongType} (${extension})` : `(${extension})`}
 🏷 시공범위 :
-${dashAreas || "-(미입력)"}`.trim();
+${dashAreas}`.trim();
 
     const blocks = [];
 
@@ -402,7 +402,7 @@ ${IKONG_NOTICE}`.trim();
 ✔️번호: ${phone}
 ${siteName ? `✔️현장명: ${siteName}\n` : ""}✔️평형타입: ${pyeongLine}
 ✔️시공공간:
-${dashAreas || "-(미입력)"}
+${dashAreas}
 ✔️본사 전문가시공 무료제공`.trim();
 
     const blocks = [];
@@ -570,4 +570,5 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
