@@ -69,15 +69,13 @@
         <div>
           <label>확장여부</label>
           <select id="extension">
-            <option value="확장">확장</option>
             <option value="비확장">비확장</option>
             <option value="베확장">베확장</option>
           </select>
         </div>
         <div>
-          <label>시공범위/시공공간 (고정)</label>
-          <input id="areas" value="거실, 복도, 주방" readonly list="areaList" />
-          <div class="hint muted">※ 기본은 고정. 방은 아래 옵션에서 추가됩니다.</div>
+          <label>시공범위</label>
+          <input id="siteName" placeholder="OO아파트 / OO빌라 / OO오피스텔" />
         </div>
       </div>
 
@@ -669,3 +667,4 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
