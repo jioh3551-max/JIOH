@@ -172,15 +172,6 @@
     { title: "💕스킨퓨어1200 (24T)", size: "120cmx120cmx2.4cm", unitPrice: 119000, tail: "(행사가 장당 119,000원)" },
     { title: "★프리미엄1200 (24T)특판", size: "120cmx120cmx2.4cm", unitPrice: 100000, tail: "☞까사스페인컬러 한정" },
   ];
-// ---- 방 옵션 섹션 (까사플로아) ----
-if (data.optRoom && data.qty600Room > 0) {
-  const roomBlocks = [];
-
-  roomBlocks.push(`-방`);
-
-  for (const p of CASA_600) {
-    const total = data.qty600Room * p.unitPrice;
-
     roomBlocks.push(
 `${p.title}
 ${p.size}
@@ -192,7 +183,14 @@ ${p.size}
 
   blocks.push(roomBlocks.join("\n\n"));
 }
+// ---- 방 옵션 섹션 (까사플로아) ----
+if (data.optRoom && data.qty600Room > 0) {
+  const roomBlocks = [];
 
+  roomBlocks.push(`-방`);
+
+  for (const p of CASA_600) {
+    const total = data.qty600Room * p.unitPrice;
 
   const CASA_NOTICE =
 `☑️프리미엄&클래식: 크림톤, 베이지, 그레이, 스페인(특판)
@@ -500,6 +498,7 @@ $("qty600Room")?.addEventListener("input", generate);
 </script>
 </body>
 </html>
+
 
 
 
