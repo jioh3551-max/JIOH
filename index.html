@@ -265,20 +265,7 @@
     setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; }, 2500);
   }
 
-  function splitAreas(raw) {
-    // 쉼표로 분리, 공백 제거, 빈값 제거, 중복 제거
-    const arr = (raw || "")
-      .split(",")
-      .map(s => s.trim())
-      .filter(Boolean);
-
-    const seen = new Set();
-    const out = [];
-    for (const a of arr) {
-      if (!seen.has(a)) { seen.add(a); out.push(a); }
-    }
-    return out;
-  }
+ 
 
   function buildDashAreasBlock(rawAreas, includeRoom) {
     const areas = splitAreas(rawAreas);
@@ -570,6 +557,7 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
