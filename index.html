@@ -268,7 +268,7 @@
  
 
   function buildDashAreasBlock(rawAreas, includeRoom) {
-    const areas = splitAreas(rawAreas);
+    
     if (includeRoom) areas.push("방"); // 방 옵션 체크 시 -방도 상단에 표시
     if (!areas.length) return "";
     return areas.map(a => `-${a}`).join("\n");
@@ -306,8 +306,6 @@
   // =========================
   function buildIkongkong(data) {
     const { customerName, siteName, pyeongType, extension, areasRaw, qty1200, qty600 } = data;
-
-    const dashAreas = buildDashAreasBlock(areasRaw, data.optRoom);
 
     const header =
 `🤗 아이콩콩 층간소음매트
@@ -472,7 +470,6 @@ ${CASA_NOTICE}`.trim();
 
   function generate() {
     const data = collectInput();
-    const out = (currentTemplate === "ikong") ? buildIkongkong(data) : buildCasaflora(data);
     $("output").value = out;
     setStatus("생성 완료", true);
   }
@@ -557,6 +554,7 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
