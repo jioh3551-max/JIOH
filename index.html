@@ -20,7 +20,7 @@
       border: 1px solid #d9dde3; background: #fff;
       font-size: 14px;
     }
-    textarea { min-height: 280px; resize: vertical; }
+    textarea { min-height: 320px; resize: vertical; }
 
     .row { display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
     button {
@@ -62,6 +62,9 @@
 
     .action-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
     .action-row button{ min-width: 96px; }
+
+    /* select 폭 조금 정리 */
+    select { min-height: 40px; }
   </style>
 </head>
 <body>
@@ -75,7 +78,7 @@
         <span class="mini">현재 선택: <b id="tplLabel">아이콩콩</b></span>
       </div>
       <div class="mini muted" style="margin-top:8px;">
-        고객정보 + 시공범위 입력 + 1200/600 장수 입력 → 템플릿 변환 & 문구 생성
+        고객정보 + 시공범위 선택 + 1200/600 장수 입력 → 템플릿 변환 & 문구 생성
       </div>
     </div>
 
@@ -93,6 +96,7 @@
         <div>
           <label>현장명(아파트/빌라/오피스텔 등)</label>
           <input id="siteName" placeholder="OO아파트 / OO빌라 / OO오피스텔" />
+          <div class="hint muted">※ 출력 헤더에는 “현장명:” 표시 없이 값만 반영됩니다</div>
         </div>
         <div>
           <label>평형타입</label>
@@ -101,25 +105,23 @@
         <div>
           <label>확장여부</label>
           <select id="extension">
+            <option value="확장">확장</option>
+            <option value="비확장">비확장</option>
             <option value="베확장">베확장</option>
-            <option value="베확장X">베확장X</option>
           </select>
         </div>
         <div>
-          <label>시공범위/시공공간</label>
-           <select id="extension">
-            <option value="거실">거실</option>
-             <option value="거실,복도라인">거실,복도라인</option>
-              <option value="거실,복도아일랜드">거실,복도아일랜드</option>
-              <option value="거실,복도,방">거실,복도,방</option>
-              <option value="거실,주방,복도">거실,주방,복도</option>
-              <option value="거실,주방,복도,방">거실,주방,복도,방</option>
+          <label>시공범위/시공공간 (선택)</label>
+          <select id="areasPreset">
+            <option value="">선택하세요</option>
+            <option value="거실">▼거실</option>
+            <option value="거실,복도라인">▼거실,복도라인</option>
+            <option value="거실,복도,아일랜드">▼거실,복도,아일랜드</option>
+            <option value="거실,복도,주방">▼거실,복도,주방</option>
+          </select>
+          <div class="hint muted">※ 선택한 값이 “시공범위/시공공간”에 그대로 출력됩니다</div>
         </div>
       </div>
-
-   
-      
-      </datalist>
     </div>
 
     <div class="card">
@@ -148,6 +150,18 @@
           <label>방 600 장수</label>
           <input id="qty600Room" type="number" min="0" step="1" placeholder="30" disabled />
           <div class="sub">※ 체크 시 출력에 “-방” + 방 전용 600 견적이 추가됩니다</div>
+        </div>
+      </div>
+
+      <!-- 리뷰 이벤트 옵션 -->
+      <div class="option-row">
+        <label class="check">
+          <input id="optReview" type="checkbox" />
+          리뷰이벤트
+        </label>
+        <div class="field">
+          <div class="sub">※ 체크 시 하단에 아래 문구가 추가됩니다</div>
+          <div class="sub">☑️리뷰이벤트: 총9만원 페이백혜택 (블로그3만/카페3만/인스타3만)</div>
         </div>
       </div>
 
@@ -233,6 +247,8 @@
 
 ☑️타브랜드 전문시공 기사님들도 인정한 매트품질! 까사플로아를 통해 후회없는 선택과 중복지출을 예방하세요♥`;
 
+  const REVIEW_TEXT = "☑️리뷰이벤트: 총9만원 페이백혜택 (블로그3만/카페3만/인스타3만)";
+
   // =========================
   // 2) 유틸
   // =========================
@@ -263,27 +279,23 @@
     setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; }, 2500);
   }
 
-  // 시공범위: 사용자가 입력한 것을 “그대로” 쓰되,
-  // 쉼표면 보기 좋게 공백만 정리. 줄바꿈이면 그대로 유지.
-  function formatAreasRaw(raw) {
+  function formatAreasPreset(raw) {
     const v = (raw || "").trim();
-    if (!v) return "(미입력)";
-    if (v.includes("\n")) return v;
-    return v.split(",").map(s => s.trim()).filter(Boolean).join(", ");
+    return v || "(미선택)";
   }
 
   // =========================
   // 3) 입력 수집
   // =========================
   function collectInput() {
-    const customerName = $("customerName").value.trim() || "고객님";
+    const customerName = $("customerName").value.trim() || "님";
     const phone = $("phone").value.trim();
     const siteName = $("siteName").value.trim();
 
     const pyeongType = $("pyeongType").value.trim();
     const extension = $("extension").value;
 
-    const areasRaw = $("areas").value.trim();
+    const areasPreset = $("areasPreset").value;
 
     const qty1200 = safeNum($("qty1200").value);
     const qty600 = safeNum($("qty600").value);
@@ -291,11 +303,14 @@
     const optRoom = $("optRoom")?.checked || false;
     const qty600Room = safeNum($("qty600Room")?.value);
 
+    const optReview = $("optReview")?.checked || false;
+
     return {
       customerName, phone, siteName,
-      pyeongType, extension, areasRaw,
+      pyeongType, extension, areasPreset,
       qty1200, qty600,
-      optRoom, qty600Room
+      optRoom, qty600Room,
+      optReview
     };
   }
 
@@ -303,15 +318,15 @@
   // 4) 템플릿 빌더
   // =========================
   function buildIkongkong(data) {
-    const { customerName, siteName, pyeongType, extension, areasRaw, qty1200, qty600 } = data;
+    const { customerName, siteName, pyeongType, extension, areasPreset, qty1200, qty600 } = data;
+    const areasLine = formatAreasPreset(areasPreset);
 
-    const areasLine = formatAreasRaw(areasRaw);
-
+    // 2) 헤드에서 “현장명:” 표기 없이 값만 반영
     const header =
 `🤗 아이콩콩 층간소음매트
 
 🏷 고객명 : ${customerName}
-${siteName ? `🏷 현장명 : ${siteName}\n` : ""}🏷 평형 : ${pyeongType ? `${pyeongType} (${extension})` : `(${extension})`}
+${siteName ? `🏷 ${siteName}\n` : ""}🏷 평형 : ${pyeongType ? `${pyeongType} (${extension})` : `(${extension})`}
 🏷 시공범위 : ${areasLine}`.trim();
 
     const blocks = [];
@@ -367,24 +382,28 @@ ${siteName ? `🏷 현장명 : ${siteName}\n` : ""}🏷 평형 : ${pyeongType ? 
 
     const itemsBlock = blocks.length ? blocks.join("\n\n") : "(장수를 입력하면 라인이 생성됩니다.)";
 
+    // 1) 리뷰 체크 시 하단 반영
+    const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
+
     return `${header}
 
 ${itemsBlock}
 
-${IKONG_NOTICE}`.trim();
+${IKONG_NOTICE}${reviewLine}`.trim();
   }
 
   function buildCasaflora(data) {
-    const { customerName, phone, siteName, pyeongType, extension, areasRaw, qty1200, qty600 } = data;
+    const { customerName, phone, siteName, pyeongType, extension, areasPreset, qty1200, qty600 } = data;
 
     const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
-    const areasLine = formatAreasRaw(areasRaw);
+    const areasLine = formatAreasPreset(areasPreset);
 
+    // 2) 헤드에서 “현장명:” 표기 없이 값만 반영(까사는 줄 하나로 넣기)
     const header =
 `☀️까사플로아 층간소음매트
 ✔️성함: ${customerName}
 ✔️번호: ${phone}
-${siteName ? `✔️현장명: ${siteName}\n` : ""}✔️평형타입: ${pyeongLine}
+${siteName ? `${siteName}\n` : ""}✔️평형타입: ${pyeongLine}
 ✔️시공공간: ${areasLine}
 ✔️본사 전문가시공 무료제공`.trim();
 
@@ -445,11 +464,14 @@ ${p.size}
       blocks.push(roomBlocks.join("\n\n"));
     }
 
+    // 1) 리뷰 체크 시 하단 반영
+    const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
+
     return `${header}
 
 ${blocks.join("\n\n")}
 
-${CASA_NOTICE}`.trim();
+${CASA_NOTICE}${reviewLine}`.trim();
   }
 
   // =========================
@@ -495,7 +517,7 @@ ${CASA_NOTICE}`.trim();
     $("siteName").value = "";
     $("pyeongType").value = "";
     $("extension").value = "확장";
-    $("areas").value = "";
+    $("areasPreset").value = "";
 
     $("qty1200").value = "";
     $("qty600").value = "";
@@ -503,6 +525,8 @@ ${CASA_NOTICE}`.trim();
     $("optRoom").checked = false;
     $("qty600Room").value = "";
     $("qty600Room").disabled = true;
+
+    $("optReview").checked = false;
 
     $("output").value = "";
     update600Hint();
@@ -530,6 +554,8 @@ ${CASA_NOTICE}`.trim();
   $("btnTplCasa").addEventListener("click", () => setTemplate("casa"));
 
   $("qty1200").addEventListener("input", () => { update600Hint(); });
+  $("qty600").addEventListener("input", generate);
+  $("areasPreset").addEventListener("change", generate);
 
   // 방 옵션
   $("optRoom")?.addEventListener("change", () => {
@@ -540,8 +566,8 @@ ${CASA_NOTICE}`.trim();
   });
   $("qty600Room")?.addEventListener("input", generate);
 
-  // 시공범위 변경 즉시 반영
-  $("areas")?.addEventListener("input", generate);
+  // 리뷰 이벤트
+  $("optReview")?.addEventListener("change", generate);
 
   // 최초 로드
   update600Hint();
@@ -549,4 +575,3 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
-
