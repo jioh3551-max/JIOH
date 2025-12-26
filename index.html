@@ -69,8 +69,8 @@
         <div>
           <label>확장여부</label>
           <select id="extension">
-            <option value="비확장">비확장</option>
             <option value="베확장">베확장</option>
+            <option value="베확장X">베확장X</option>
           </select>
         </div>
         <div>
@@ -79,17 +79,6 @@
         </div>
       </div>
 
-      <!-- 최근 입력 저장 -->
-      <div class="row" style="margin-top:10px;">
-        <button class="secondary" id="btnSaveRecent">최근 저장</button>
-
-        <select id="recentSelect" style="max-width: 420px;">
-          <option value="">최근 불러오기…</option>
-        </select>
-
-        <button class="secondary" id="btnDeleteRecent">선택 삭제</button>
-        <span class="mini muted">※ 이 기기(브라우저)에만 저장돼요</span>
-      </div>
 
       <!-- 자동완성 목록 -->
       <datalist id="areaList">
@@ -264,7 +253,7 @@
     const extension = $("extension").value;
 
     // 시공범위는 고정(필요하면 나중에 readonly 해제 가능)
-    const areasJoined = $("areas").value.trim() || "거실, 복도, 주방";
+    const areasJoined = $("areas").value.trim();
 
     const qty1200 = safeNum($("qty1200").value);
     const qty600 = safeNum($("qty600").value);
@@ -667,4 +656,5 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
