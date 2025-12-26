@@ -92,18 +92,18 @@
         </div>
         <div>
           <label>현장명(아파트/빌라/오피스텔 등)</label>
-          <input id="siteName" placeholder="동동주아파트 / OO빌라 / OO오피스텔" />
+          <input id="siteName" placeholder="OO아파트 / OO빌라 / OO오피스텔" />
         </div>
         <div>
           <label>평형타입</label>
-          <input id="pyeongType" placeholder="33A / 34평" />
+          <input id="pyeongType" placeholder="84A / 34평" />
         </div>
         <div>
           <label>확장여부</label>
           <select id="extension">
-            <option value="확장">확장</option>
-            <option value="비확장">비확장</option>
+        
             <option value="베확장">베확장</option>
+            <option value="베확장X">베확장X</option>
           </select>
         </div>
         <div>
@@ -309,3 +309,269 @@
     const qty600 = safeNum($("qty600").value);
 
     const optRoom = $("optRoom")?.checked || false;
+    const qty600Room = safeNum($("qty600Room")?.value);
+
+    return {
+      customerName, phone, siteName,
+      pyeongType, extension, areasRaw,
+      qty1200, qty600,
+      optRoom, qty600Room
+    };
+  }
+
+  // =========================
+  // 4) 템플릿 빌더
+  // =========================
+  function buildIkongkong(data) {
+    const { customerName, siteName, pyeongType, extension, areasRaw, qty1200, qty600 } = data;
+
+    const dashAreas = buildDashAreasBlock(areasRaw, data.optRoom);
+
+    const header =
+`🤗 아이콩콩 층간소음매트
+
+🏷 고객명 : ${customerName}
+${siteName ? `🏷 현장명 : ${siteName}\n` : ""}🏷 평형 : ${pyeongType ? `${pyeongType} (${extension})` : `(${extension})`}
+🏷 시공범위 :
+${dashAreas || "-(미입력)"}`.trim();
+
+    const blocks = [];
+
+    // 1200 라인 (5줄 고정)
+    if (qty1200 > 0) {
+      for (const p of IKONG_1200) {
+        const total = qty1200 * p.unitPrice;
+        const qtyLine = (p.qtyLineStyle === "소요")
+          ? `총 ${formatQty(qty1200)} 소요 예상(변동가능성 있음)`
+          : `총 ${formatQty(qty1200)}(변동가능성 있음)`;
+
+        blocks.push(
+`${p.name}
+* 장당 : ${formatWon(p.unitPrice)}
+* ${qtyLine}
+* 총 ${formatWon(total)}`
+        );
+      }
+    }
+
+    // 기본 600 라인
+    if (qty600 > 0) {
+      for (const p of IKONG_600) {
+        const total = qty600 * p.unitPrice;
+        blocks.push(
+`🔖${p.name}
+
+* 장당 : ${formatWon(p.unitPrice)}
+* 예상수량 : ${formatQty(qty600)}
+* 총금액 : ${formatWon(total)}`
+        );
+      }
+    }
+
+    // 방 옵션 섹션(아이콩콩): “-방” + 방600 라인 2개
+    if (data.optRoom && data.qty600Room > 0) {
+      const roomBlocks = [];
+      roomBlocks.push(`-방`);
+
+      for (const p of IKONG_600) {
+        const total = data.qty600Room * p.unitPrice;
+        roomBlocks.push(
+`🔖${p.name}
+
+* 장당 : ${formatWon(p.unitPrice)}
+* 예상수량 : ${formatQty(data.qty600Room)}
+* 총금액 : ${formatWon(total)}`
+        );
+      }
+      blocks.push(roomBlocks.join("\n\n"));
+    }
+
+    const itemsBlock = blocks.length ? blocks.join("\n\n") : "(장수를 입력하면 라인이 생성됩니다.)";
+
+    return `${header}
+
+${itemsBlock}
+
+${IKONG_NOTICE}`.trim();
+  }
+
+  function buildCasaflora(data) {
+    const { customerName, phone, siteName, pyeongType, extension, areasRaw, qty1200, qty600 } = data;
+
+    const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
+    const dashAreas = buildDashAreasBlock(areasRaw, data.optRoom);
+
+    const header =
+`☀️까사플로아 층간소음매트
+✔️성함: ${customerName}
+✔️번호: ${phone}
+${siteName ? `✔️현장명: ${siteName}\n` : ""}✔️평형타입: ${pyeongLine}
+✔️시공공간:
+${dashAreas || "-(미입력)"}
+✔️본사 전문가시공 무료제공`.trim();
+
+    const blocks = [];
+
+    // 600 (기본 공간)
+    for (const p of CASA_600) {
+      const total = qty600 * p.unitPrice;
+      blocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(qty600)}
+예상금액: ${formatWon(total)}
+(행사가 장당 ${formatWon(p.unitPrice)})`
+      );
+    }
+
+    // 1200
+    for (const p of CASA_1200) {
+      const total = qty1200 * p.unitPrice;
+
+      if (p.title.includes("특판")) {
+        blocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(qty1200)}
+예상금액: ${formatWon(total)}
+(행사가 장당 ${formatWon(p.unitPrice)})
+${p.tail}`
+        );
+      } else {
+        blocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(qty1200)}
+예상금액: ${formatWon(total)}
+${p.tail}`
+        );
+      }
+    }
+
+    // 방 옵션 섹션(까사플로아): “-방” + 방600 라인 2개
+    if (data.optRoom && data.qty600Room > 0) {
+      const roomBlocks = [];
+      roomBlocks.push(`-방`);
+
+      for (const p of CASA_600) {
+        const total = data.qty600Room * p.unitPrice;
+        roomBlocks.push(
+`${p.title}
+${p.size}
+예상장수: ${formatQty(data.qty600Room)}
+예상금액: ${formatWon(total)}
+(행사가 장당 ${formatWon(p.unitPrice)})`
+        );
+      }
+
+      blocks.push(roomBlocks.join("\n\n"));
+    }
+
+    return `${header}
+
+${blocks.join("\n\n")}
+
+${CASA_NOTICE}`.trim();
+  }
+
+  // =========================
+  // 5) 템플릿 전환/생성/복사/초기화
+  // =========================
+  let currentTemplate = "ikong"; // "ikong" | "casa"
+
+  function setTemplate(tpl) {
+    currentTemplate = tpl;
+    const isIkong = tpl === "ikong";
+    $("btnTplIkong").classList.toggle("active", isIkong);
+    $("btnTplCasa").classList.toggle("active", !isIkong);
+    $("tplLabel").textContent = isIkong ? "아이콩콩" : "까사플로아";
+    generate();
+  }
+
+  function generate() {
+    const data = collectInput();
+    const out = (currentTemplate === "ikong") ? buildIkongkong(data) : buildCasaflora(data);
+    $("output").value = out;
+    setStatus("생성 완료", true);
+  }
+
+  async function copyOutput() {
+    const text = $("output").value.trim();
+    if (!text) { setStatus("복사할 내용이 없어요", false); return; }
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setStatus("복사 완료 ✅", true);
+    } catch (e) {
+      $("output").focus();
+      $("output").select();
+      const ok = document.execCommand("copy");
+      setStatus(ok ? "복사 완료 ✅" : "복사 실패(브라우저 권한 확인)", ok);
+      window.getSelection?.().removeAllRanges?.();
+    }
+  }
+
+  function clearAll() {
+    $("customerName").value = "";
+    $("phone").value = "";
+    $("siteName").value = "";
+    $("pyeongType").value = "";
+    $("extension").value = "확장";
+    $("areas").value = "";
+
+    $("qty1200").value = "";
+    $("qty600").value = "";
+
+    $("optRoom").checked = false;
+    $("qty600Room").value = "";
+    $("qty600Room").disabled = true;
+
+    $("output").value = "";
+    update600Hint();
+    setStatus("초기화 완료", true);
+  }
+
+  // =========================
+  // 6) 600 옆 흐릿한 예상장수 (1200×4)
+  // =========================
+  function update600Hint() {
+    const qty1200 = Number($("qty1200").value);
+    const hint = $("hint600");
+
+    if (isFinite(qty1200) && qty1200 > 0) {
+      hint.textContent = `예상 600장수(1200×4): ${qty1200 * 4}장`;
+    } else {
+      hint.textContent = "예상 600장수(1200×4): -";
+    }
+  }
+
+  // =========================
+  // 7) 이벤트 바인딩
+  // =========================
+  $("btnGenerate").addEventListener("click", generate);
+  $("btnCopy").addEventListener("click", copyOutput);
+  $("btnClear").addEventListener("click", clearAll);
+
+  $("btnTplIkong").addEventListener("click", () => setTemplate("ikong"));
+  $("btnTplCasa").addEventListener("click", () => setTemplate("casa"));
+
+  $("qty1200").addEventListener("input", () => { update600Hint(); });
+
+  // 방 옵션
+  $("optRoom")?.addEventListener("change", () => {
+    const on = $("optRoom").checked;
+    $("qty600Room").disabled = !on;
+    if (!on) $("qty600Room").value = "";
+    generate();
+  });
+  $("qty600Room")?.addEventListener("input", generate);
+
+  // 시공범위 바뀌면 바로 반영(원치 않으면 주석 처리)
+  $("areas")?.addEventListener("input", generate);
+
+  // 최초 로드
+  update600Hint();
+  generate();
+</script>
+</body>
+</html>
