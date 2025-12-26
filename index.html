@@ -106,18 +106,18 @@
           </select>
         </div>
         <div>
-          <label>시공범위/시공공간 (쉼표로 입력)</label>
-          <input id="areas" list="areaList" placeholder="거실, 복도, 주방" />
-          <div class="hint muted">※ 입력한 그대로 “시공범위/시공공간”에 표시됩니다</div>
+          <label>시공범위/시공공간</label>
+           <select id="extension">
+            <option value="거실">거실</option>
+             <option value="거실,복도라인">거실,복도라인</option>
+              <option value="거실,복도아일랜드">거실,복도아일랜드</option>
+              <option value="거실,복도,방">거실,복도,방</option>
+              <option value="거실,주방,복도">거실,주방,복도</option>
+              <option value="거실,주방,복도,방">거실,주방,복도,방</option>
         </div>
       </div>
 
-      <datalist id="areaList">
-        <option value="거실,">
-        <option value="거실,복도,">
-        <option value="거실,복도,주방">
-        <option value="거실,복도,주방,방">
-        <option value="거실,복도,방">
+   
       
       </datalist>
     </div>
@@ -549,3 +549,4 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
