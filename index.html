@@ -11,6 +11,8 @@
     h1 { font-size: 18px; margin: 0 0 10px; }
     h2 { font-size: 14px; margin: 0 0 8px; color:#333; }
     .grid { display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    @media (max-width: 720px){ .grid { grid-template-columns: 1fr; } }
+
     label { display:block; font-size: 12px; color:#555; margin-bottom: 4px; }
     input, select, textarea {
       width: 100%; box-sizing: border-box;
@@ -19,6 +21,7 @@
       font-size: 14px;
     }
     textarea { min-height: 280px; resize: vertical; }
+
     .row { display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
     button {
       border: 0; padding: 10px 14px; border-radius: 12px;
@@ -27,10 +30,38 @@
     button.secondary { background:#e9ecf1; color:#111; }
     button.tab { background:#e9ecf1; color:#111; }
     button.tab.active { background:#111; color:#fff; }
+
     .hint { font-size: 12px; color:#666; margin-top: 6px; }
     .mini { font-size: 12px; color:#666; }
     .ok { color: #0a7; font-weight: 600; }
     .muted { color:#999; }
+
+    /* 장수 영역 예쁘게 */
+    .qty-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 720px){ .qty-grid { grid-template-columns: 1fr; } }
+
+    .option-row{
+      display:flex; align-items:center; gap:12px;
+      padding: 10px 12px;
+      border: 1px solid #e6eaf0;
+      border-radius: 12px;
+      background:#fafbfc;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .option-row .check{
+      display:flex; align-items:center; gap:8px;
+      min-width: 120px;
+      font-size: 13px; color:#222;
+      white-space: nowrap;
+    }
+    .option-row .check input{ width:18px; height:18px; }
+    .option-row .field{ flex:1; min-width: 220px; }
+    .option-row .field label{ margin:0 0 4px; font-size:12px; color:#555; }
+    .option-row .field .sub{ font-size:12px; color:#999; margin-top:4px; }
+
+    .action-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+    .action-row button{ min-width: 96px; }
   </style>
 </head>
 <body>
@@ -43,12 +74,13 @@
         <button id="btnTplCasa" class="tab">까사플로아 양식</button>
         <span class="mini">현재 선택: <b id="tplLabel">아이콩콩</b></span>
       </div>
-      <div class="mini muted" style="margin-top:8px;">고객정보 직접입력 + 1200/600 장수 입력 → 템플릿만 버튼으로 변환</div>
+      <div class="mini muted" style="margin-top:8px;">
+        고객정보 + 시공범위 입력 + 1200/600 장수 입력 → 템플릿 변환 & 문구 생성
+      </div>
     </div>
 
     <div class="card">
       <h2>고객/현장 정보</h2>
-
       <div class="grid">
         <div>
           <label>성함(고객명)</label>
@@ -69,18 +101,18 @@
         <div>
           <label>확장여부</label>
           <select id="extension">
+            <option value="확장">확장</option>
+            <option value="비확장">비확장</option>
             <option value="베확장">베확장</option>
-            <option value="베확장X">베확장X</option>
           </select>
         </div>
         <div>
-          <label>시공범위</label>
-          <input id="siteName" placeholder="OO아파트 / OO빌라 / OO오피스텔" />
+          <label>시공범위/시공공간 (쉼표로 입력)</label>
+          <input id="areas" list="areaList" placeholder="거실, 복도, 주방" />
+          <div class="hint muted">※ 출력에서 “-거실” 같은 형태로 상단에 표시됩니다</div>
         </div>
       </div>
 
-
-      <!-- 자동완성 목록 -->
       <datalist id="areaList">
         <option value="거실">
         <option value="복도">
@@ -97,12 +129,13 @@
 
     <div class="card">
       <h2>장수 입력</h2>
-      <div class="grid">
+      <div class="qty-grid">
         <div>
           <label>1200 장수</label>
           <input id="qty1200" type="number" min="0" step="0.5" placeholder="23" />
           <div class="hint">※ 0.5 입력 가능 (예: 28.5)</div>
         </div>
+
         <div>
           <label>600 장수</label>
           <input id="qty600" type="number" min="0" step="1" placeholder="92" />
@@ -111,20 +144,20 @@
       </div>
 
       <!-- 방 옵션 -->
-      <div class="row" style="margin-top:10px;">
-        <label style="display:flex; gap:8px; align-items:center;">
+      <div class="option-row">
+        <label class="check">
           <input id="optRoom" type="checkbox" />
           방 추가(옵션)
         </label>
 
-        <div style="flex:1; min-width:220px;">
-          <label style="margin:0 0 4px;">방 600 장수</label>
+        <div class="field">
+          <label>방 600 장수</label>
           <input id="qty600Room" type="number" min="0" step="1" placeholder="30" disabled />
-          <div class="hint" style="color:#999;">※ 출력에 “-방” 섹션이 추가됩니다</div>
+          <div class="sub">※ 체크 시 출력에 “-방”과 방 전용 600 라인이 추가됩니다</div>
         </div>
       </div>
 
-      <div class="row" style="margin-top:12px;">
+      <div class="action-row">
         <button id="btnGenerate">견적 생성</button>
         <button class="secondary" id="btnCopy">복사</button>
         <button class="secondary" id="btnClear">초기화</button>
@@ -143,8 +176,6 @@
   // =========================
   // 1) 프리셋 / 고정문구
   // =========================
-
-  // 아이콩콩: 1200 (5줄 고정)
   const IKONG_1200 = [
     { name: "⭐1200사이즈 프리미엄 TPU 리퍼브", unitPrice: 98000, qtyLineStyle: "소요" },
     { name: "⭐1200사이즈 프리미엄 TPU 화이트마블 색상 특가 프로모션", unitPrice: 100000, qtyLineStyle: "소요" },
@@ -153,7 +184,6 @@
     { name: "*1200 스킨퓨어 박람회 할인", unitPrice: 120000, qtyLineStyle: "변동" },
   ];
 
-  // 아이콩콩: 600
   const IKONG_600 = [
     { name: "프리미엄TPU 600 (22T)", unitPrice: 22000 },
     { name: "스킨퓨어 600 (22T)", unitPrice: 25000 },
@@ -177,7 +207,6 @@
 언제든지 문의주세요❣`
   ].join("\n\n");
 
-  // 까사플로아 프리셋
   const CASA_600 = [
     { title: "💕클래식600 (22T)", size: "60cmx60cmx2.2cm", unitPrice: 22000 },
     { title: "💕클래식스킨퓨어600 (22T)", size: "60cmx60cmx2.2cm", unitPrice: 25000 },
@@ -194,19 +223,19 @@
 
 ☑️스킨퓨어: 베이지
 
-☑️예상수량은 800가구 이상의 평균데이터 및 온라인도면을 통해 산출된 양으로, 실제시공시 약간의 오차범위 발생될 수 있습니다
+☑️예상수량은 800가구 이상의 평균데이터 및 온라인도면을 통해 산출된 양으로, 실제시공시 약간의 오차범위 발생될 수 있습니다.
 
 ☑️실제시공시 들어간 장수만큼만 체크해 결제가 진행되겠습니다.
 
-☑️계약금은 0원입니다. 스케쥴 배정후, 시공당일 결제가 진행되겠습니다
+☑️계약금은 0원입니다. 스케쥴 배정후, 시공당일 결제가 진행되겠습니다.
 
-☑️펜트리가 존재할 경우 미리 말씀주시면, 펜트리 전용매트도 지참후 방문드리겠습니다
+☑️펜트리가 존재할 경우 미리 말씀주시면, 펜트리 전용매트도 지참후 방문드리겠습니다.
 
 ☑️프로모션은 현금기준이며, 카드/세금계산서/현금영수증(이체) 발급시 부가세10% 아닌 5% 발생으로 추가 프로모션 적용됩니다.
 
-☑️프로모션은 시공일 기준이 아닌, 예약일 기준으로 적용 고정되겠습니다
+☑️프로모션은 시공일 기준이 아닌, 예약일 기준으로 적용 고정되겠습니다.
 
-☑️전문시공서비스 & 출장비는 모두 무료입니다
+☑️전문시공서비스 & 출장비는 모두 무료입니다.
 
 ☑️타브랜드 전문시공 기사님들도 인정한 매트품질! 까사플로아를 통해 후회없는 선택과 중복지출을 예방하세요♥`;
 
@@ -241,6 +270,28 @@
     setTimeout(()=>{ if(el.textContent===msg) el.textContent=""; }, 2500);
   }
 
+  function splitAreas(raw) {
+    // 쉼표로 분리, 공백 제거, 빈값 제거, 중복 제거
+    const arr = (raw || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const seen = new Set();
+    const out = [];
+    for (const a of arr) {
+      if (!seen.has(a)) { seen.add(a); out.push(a); }
+    }
+    return out;
+  }
+
+  function buildDashAreasBlock(rawAreas, includeRoom) {
+    const areas = splitAreas(rawAreas);
+    if (includeRoom) areas.push("방"); // 방 옵션 체크 시 -방도 상단에 표시
+    if (!areas.length) return "";
+    return areas.map(a => `-${a}`).join("\n");
+  }
+
   // =========================
   // 3) 입력 수집
   // =========================
@@ -252,409 +303,9 @@
     const pyeongType = $("pyeongType").value.trim();
     const extension = $("extension").value;
 
-    // 시공범위는 고정(필요하면 나중에 readonly 해제 가능)
-    const areasJoined = $("areas").value.trim();
+    const areasRaw = $("areas").value.trim(); // 고정 아님
 
     const qty1200 = safeNum($("qty1200").value);
     const qty600 = safeNum($("qty600").value);
 
     const optRoom = $("optRoom")?.checked || false;
-    const qty600Room = safeNum($("qty600Room")?.value);
-
-    return {
-      customerName, phone, siteName,
-      pyeongType, extension, areasJoined,
-      qty1200, qty600,
-      optRoom, qty600Room
-    };
-  }
-
-  // =========================
-  // 4) 템플릿 빌더
-  // =========================
-  function buildIkongkong(data) {
-    const { customerName, siteName, pyeongType, extension, areasJoined, qty1200, qty600 } = data;
-
-    const header =
-`🤗 아이콩콩 층간소음매트
-
-🏷 고객명 : ${customerName}
-${siteName ? `🏷 현장명 : ${siteName}\n` : ""}🏷 평형 : ${pyeongType ? `${pyeongType} (${extension})` : `(${extension})`}
-🏷 시공범위 : ${areasJoined}`.trim();
-
-    const blocks = [];
-
-    // 1200 라인 (5줄 고정)
-    if (qty1200 > 0) {
-      for (const p of IKONG_1200) {
-        const total = qty1200 * p.unitPrice;
-        const qtyLine = (p.qtyLineStyle === "소요")
-          ? `총 ${formatQty(qty1200)} 소요 예상(변동가능성 있음)`
-          : `총 ${formatQty(qty1200)}(변동가능성 있음)`;
-
-        blocks.push(
-`${p.name}
-* 장당 : ${formatWon(p.unitPrice)}
-* ${qtyLine}
-* 총 ${formatWon(total)}`
-        );
-      }
-    }
-
-    // 기본 600 라인(거실/복도/주방)
-    if (qty600 > 0) {
-      for (const p of IKONG_600) {
-        const total = qty600 * p.unitPrice;
-        blocks.push(
-`🔖${p.name}
-
-* 장당 : ${formatWon(p.unitPrice)}
-* 예상수량 : ${formatQty(qty600)}
-* 총금액 : ${formatWon(total)}`
-        );
-      }
-    }
-
-    // ---- 방 옵션 섹션(아이콩콩) : “-방” + 600라인 2개 추가 출력 ----
-    if (data.optRoom && data.qty600Room > 0) {
-      const roomBlocks = [];
-      roomBlocks.push(`-방`);
-
-      for (const p of IKONG_600) {
-        const total = data.qty600Room * p.unitPrice;
-        roomBlocks.push(
-`🔖${p.name}
-
-* 장당 : ${formatWon(p.unitPrice)}
-* 예상수량 : ${formatQty(data.qty600Room)}
-* 총금액 : ${formatWon(total)}`
-        );
-      }
-      blocks.push(roomBlocks.join("\n\n"));
-    }
-
-    const itemsBlock = blocks.length ? blocks.join("\n\n") : "(장수를 입력하면 라인이 생성됩니다.)";
-
-    return `${header}
-
-${itemsBlock}
-
-${IKONG_NOTICE}`.trim();
-  }
-
-  function buildCasaflora(data) {
-    const { customerName, phone, siteName, pyeongType, extension, areasJoined, qty1200, qty600 } = data;
-
-    const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
-    const areasLine = areasJoined || "거실, 복도, 주방";
-
-    const header =
-`☀️까사플로아 층간소음매트
-✔️성함: ${customerName}
-✔️번호: ${phone}
-${siteName ? `✔️현장명: ${siteName}\n` : ""}✔️평형타입: ${pyeongLine}
-✔️시공공간: ${areasLine}
-✔️본사 전문가시공 무료제공`.trim();
-
-    const blocks = [];
-
-    // 600 (거실/복도/주방)
-    for (const p of CASA_600) {
-      const total = qty600 * p.unitPrice;
-      blocks.push(
-`${p.title}
-${p.size}
-예상장수: ${formatQty(qty600)}
-예상금액: ${formatWon(total)}
-(행사가 장당 ${formatWon(p.unitPrice)})`
-      );
-    }
-
-    // 1200
-    for (const p of CASA_1200) {
-      const total = qty1200 * p.unitPrice;
-
-      if (p.title.includes("특판")) {
-        blocks.push(
-`${p.title}
-${p.size}
-예상장수: ${formatQty(qty1200)}
-예상금액: ${formatWon(total)}
-(행사가 장당 ${formatWon(p.unitPrice)})
-${p.tail}`
-        );
-      } else {
-        blocks.push(
-`${p.title}
-${p.size}
-예상장수: ${formatQty(qty1200)}
-예상금액: ${formatWon(total)}
-${p.tail}`
-        );
-      }
-    }
-
-    // ---- 방 옵션 섹션(까사플로아) : “-방” + 600라인 2개 추가 출력 ----
-    if (data.optRoom && data.qty600Room > 0) {
-      const roomBlocks = [];
-      roomBlocks.push(`-방`);
-
-      for (const p of CASA_600) {
-        const total = data.qty600Room * p.unitPrice;
-        roomBlocks.push(
-`${p.title}
-${p.size}
-예상장수: ${formatQty(data.qty600Room)}
-예상금액: ${formatWon(total)}
-(행사가 장당 ${formatWon(p.unitPrice)})`
-        );
-      }
-
-      blocks.push(roomBlocks.join("\n\n"));
-    }
-
-    return `${header}
-
-${blocks.join("\n\n")}
-
-${CASA_NOTICE}`.trim();
-  }
-
-  // =========================
-  // 5) 템플릿 전환/생성/복사/초기화
-  // =========================
-  let currentTemplate = "ikong"; // "ikong" | "casa"
-
-  function setTemplate(tpl) {
-    currentTemplate = tpl;
-    const isIkong = tpl === "ikong";
-    $("btnTplIkong").classList.toggle("active", isIkong);
-    $("btnTplCasa").classList.toggle("active", !isIkong);
-    $("tplLabel").textContent = isIkong ? "아이콩콩" : "까사플로아";
-    generate();
-  }
-
-  function generate() {
-    const data = collectInput();
-    const out = (currentTemplate === "ikong") ? buildIkongkong(data) : buildCasaflora(data);
-    $("output").value = out;
-    setStatus("생성 완료", true);
-  }
-
-  async function copyOutput() {
-    const text = $("output").value.trim();
-    if (!text) { setStatus("복사할 내용이 없어요", false); return; }
-
-    try {
-      await navigator.clipboard.writeText(text);
-      setStatus("복사 완료 ✅", true);
-    } catch (e) {
-      $("output").focus();
-      $("output").select();
-      const ok = document.execCommand("copy");
-      setStatus(ok ? "복사 완료 ✅" : "복사 실패(브라우저 권한 확인)", ok);
-      window.getSelection?.().removeAllRanges?.();
-    }
-  }
-
-  function clearAll() {
-    $("customerName").value = "";
-    $("phone").value = "";
-    $("siteName").value = "";
-    $("pyeongType").value = "";
-    $("extension").value = "확장";
-    $("areas").value = "거실, 복도, 주방";
-    $("qty1200").value = "";
-    $("qty600").value = "";
-
-    $("optRoom").checked = false;
-    $("qty600Room").value = "";
-    $("qty600Room").disabled = true;
-
-    $("output").value = "";
-    update600Hint();
-    setStatus("초기화 완료", true);
-  }
-
-  // =========================
-  // 6) 600 옆 흐릿한 예상장수 (1200×4)
-  // =========================
-  function update600Hint() {
-    const qty1200 = Number($("qty1200").value);
-    const hint = $("hint600");
-
-    if (isFinite(qty1200) && qty1200 > 0) {
-      hint.textContent = `예상 600장수(1200×4): ${qty1200 * 4}장`;
-    } else {
-      hint.textContent = "예상 600장수(1200×4): -";
-    }
-  }
-
-  // =========================
-  // 7) 최근 입력 저장 (LocalStorage)
-  // =========================
-  const RECENT_KEY = "estimate_recent_v1";
-  const RECENT_LIMIT = 10;
-
-  function loadRecentList() {
-    try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); }
-    catch { return []; }
-  }
-
-  function saveRecentList(list) {
-    localStorage.setItem(RECENT_KEY, JSON.stringify(list.slice(0, RECENT_LIMIT)));
-  }
-
-  function buildRecentLabel(r) {
-    const p = r.pyeongType ? r.pyeongType : "";
-    const s = r.siteName ? r.siteName : "";
-    const n = r.customerName ? r.customerName : "";
-    const ext = r.extension ? r.extension : "";
-    const q = `1200:${r.qty1200 || 0}, 600:${r.qty600 || 0}` + (r.optRoom ? `, 방600:${r.qty600Room || 0}` : "");
-    return `${n} | ${s} | ${p}(${ext}) | ${q}`.replace(/\s+/g, " ").trim();
-  }
-
-  function refreshRecentSelect() {
-    const select = $("recentSelect");
-    if (!select) return;
-
-    const list = loadRecentList();
-    select.innerHTML = `<option value="">최근 불러오기…</option>`;
-    list.forEach((r, idx) => {
-      const opt = document.createElement("option");
-      opt.value = String(idx);
-      opt.textContent = buildRecentLabel(r);
-      select.appendChild(opt);
-    });
-  }
-
-  function saveCurrentToRecent() {
-    const data = collectInput();
-    const item = {
-      customerName: data.customerName,
-      phone: data.phone,
-      siteName: data.siteName,
-      pyeongType: data.pyeongType,
-      extension: data.extension,
-      areasJoined: data.areasJoined,
-      qty1200: data.qty1200,
-      qty600: data.qty600,
-      optRoom: data.optRoom,
-      qty600Room: data.qty600Room,
-      savedAt: Date.now(),
-    };
-
-    const hasAny =
-      item.customerName !== "님" ||
-      item.siteName ||
-      item.pyeongType ||
-      item.qty1200 > 0 ||
-      item.qty600 > 0 ||
-      item.optRoom;
-
-    if (!hasAny) {
-      setStatus("저장할 내용이 없어요", false);
-      return;
-    }
-
-    let list = loadRecentList();
-
-    // 동일 항목 중복 제거
-    list = list.filter(r =>
-      !(
-        r.customerName === item.customerName &&
-        r.phone === item.phone &&
-        r.siteName === item.siteName &&
-        r.pyeongType === item.pyeongType &&
-        r.extension === item.extension &&
-        Number(r.qty1200 || 0) === Number(item.qty1200 || 0) &&
-        Number(r.qty600 || 0) === Number(item.qty600 || 0) &&
-        Boolean(r.optRoom) === Boolean(item.optRoom) &&
-        Number(r.qty600Room || 0) === Number(item.qty600Room || 0)
-      )
-    );
-
-    list.unshift(item);
-    saveRecentList(list);
-    refreshRecentSelect();
-    setStatus("최근 저장 완료 ✅", true);
-  }
-
-  function applyRecent(index) {
-    const list = loadRecentList();
-    const r = list[index];
-    if (!r) return;
-
-    $("customerName").value = r.customerName || "";
-    $("phone").value = r.phone || "";
-    $("siteName").value = r.siteName || "";
-    $("pyeongType").value = r.pyeongType || "";
-    $("extension").value = r.extension || "확장";
-    $("areas").value = r.areasJoined || "거실, 복도, 주방";
-    $("qty1200").value = (r.qty1200 ?? "");
-    $("qty600").value = (r.qty600 ?? "");
-
-    $("optRoom").checked = Boolean(r.optRoom);
-    $("qty600Room").disabled = !$("optRoom").checked;
-    $("qty600Room").value = $("optRoom").checked ? (r.qty600Room ?? "") : "";
-
-    update600Hint();
-    generate();
-    setStatus("최근 항목 불러옴 ✅", true);
-  }
-
-  function deleteRecent(index) {
-    let list = loadRecentList();
-    if (index < 0 || index >= list.length) return;
-    list.splice(index, 1);
-    saveRecentList(list);
-    refreshRecentSelect();
-    setStatus("삭제 완료", true);
-  }
-
-  // =========================
-  // 8) 이벤트 바인딩
-  // =========================
-  $("btnGenerate").addEventListener("click", generate);
-  $("btnCopy").addEventListener("click", copyOutput);
-  $("btnClear").addEventListener("click", clearAll);
-
-  $("btnTplIkong").addEventListener("click", () => setTemplate("ikong"));
-  $("btnTplCasa").addEventListener("click", () => setTemplate("casa"));
-
-  $("qty1200").addEventListener("input", () => { update600Hint(); });
-
-  // 방 옵션 이벤트
-  $("optRoom")?.addEventListener("change", () => {
-    const on = $("optRoom").checked;
-    $("qty600Room").disabled = !on;
-    if (!on) $("qty600Room").value = "";
-    generate();
-  });
-  $("qty600Room")?.addEventListener("input", generate);
-
-  // 최근 저장/불러오기/삭제
-  $("btnSaveRecent")?.addEventListener("click", saveCurrentToRecent);
-  $("recentSelect")?.addEventListener("change", (e) => {
-    const v = e.target.value;
-    if (v === "") return;
-    applyRecent(Number(v));
-    e.target.value = "";
-  });
-  $("btnDeleteRecent")?.addEventListener("click", () => {
-    const select = $("recentSelect");
-    const idx = Number(select.value);
-    if (!isFinite(idx)) { setStatus("삭제할 항목을 선택하세요", false); return; }
-    deleteRecent(idx);
-    select.value = "";
-  });
-
-  // 최초 로드
-  update600Hint();
-  refreshRecentSelect();
-  generate();
-</script>
-</body>
-</html>
-
-
