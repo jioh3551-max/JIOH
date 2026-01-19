@@ -370,6 +370,7 @@ ${p.size}
         const total = qty1200 * p.eventPrice;
         lines.push(
 `${p.label}
+${p.size}
 ❃장당: ${strikeText(formatWon(p.regularPrice))}
 ❃이벤트가: ${formatWon(p.eventPrice)}
 ❃예상수량: ${formatQty(qty1200)}
@@ -389,6 +390,7 @@ ${p.size}
         const total = qty1200 * p.eventPrice;
         lines.push(
 `${p.label}
+${p.size}
 ❃장당: ${strikeText(formatWon(p.regularPrice))}
 ❃이벤트가: ${formatWon(p.eventPrice)}
 ❃예상수량: ${formatQty(qty1200)}
@@ -595,5 +597,6 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 </script>
 </body>
 </html>
+
 
 
