@@ -88,7 +88,7 @@
           <input id="customerName" placeholder="홍길동" />
         </div>
         <div>
-          <label>번호(선택)</label>
+          <label>연락처(선택)</label>
           <input id="phone" placeholder="010-0000-0000" />
         </div>
         <div>
@@ -340,7 +340,7 @@ function strikeText(text) {
 `❄️"아이콩콩매트" 견적 안내서
 
 ✿고객명: ${customerName} 님
-✿번호: ${phone || "카톡채널상담"}
+✿연락처: ${phone || "카톡채널상담"}
 ✿지역: ${siteName || ""}
 ✿평형: ${pyeongType || ""}${pyeongType ? " " : ""}${extension ? `(${extension})` : ""}
 ✿시공범위: ${formatAreasPreset(areasPreset)}
@@ -597,6 +597,7 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
