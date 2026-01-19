@@ -381,10 +381,8 @@ ${p.size}
 
     // 리퍼브 라인업 (1200 입력 있을 때만)
     if (qty1200 > 0) {
-      lines.push(``);
-      lines.push(`[리퍼브 라인업]`);
-      lines.push(``);
-      lines.push(IKONG_REFURB_DESC);
+   lines.push(`[리퍼브 라인업]`);
+   lines.push(IKONG_REFURB_DESC);
 
       for (const p of IKONG_1200_REFURB) {
         const total = qty1200 * p.eventPrice;
@@ -597,6 +595,7 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
