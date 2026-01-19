@@ -294,10 +294,11 @@ A/S가 적용되지 않는 상품입니다`;
   }
 
   // ✅ 텍스트 취소선(카톡/텍스트용): 유니코드 결합 취소선
-  function strikeText(text) {
-    // 각 문자 뒤에 U+0336(Combining Long Stroke Overlay) 붙이기
-    return String(text).split("").map(ch => ch + "\u0336").join("");
-  }
+function strikeText(text) {
+  const s = String(text);
+  const mark = "\u0336";
+  return s.replace(/[0-9,]/g, (ch) => ch + mark);
+}
 
   // =========================
   // 3) 입력 수집
@@ -357,7 +358,7 @@ A/S가 적용되지 않는 상품입니다`;
         lines.push(
 `${p.label}
 ${p.size}
-❃장당: ${formatWon(p.regularPrice)}
+❃장당: ${strikeText(formatWon(p.regularPrice))}
 ❃이벤트가: ${formatWon(p.eventPrice)}
 ❃예상수량: ${formatQty(qty600)}
 ❃총금액: ${formatWon(total)}`
@@ -596,6 +597,7 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
