@@ -73,6 +73,10 @@
       <div class="row">
         <button id="btnTplIkong" class="tab active">아이콩콩 양식</button>
         <button id="btnTplCasa" class="tab">까사플로아 양식</button>
+
+        <!-- ✅ (추가) 아이콩콩 양식 토글 버튼: 아이콩콩에서만 보임 -->
+        <button id="btnIkongOnly1200" class="secondary">아이콩콩: 기본</button>
+
         <span class="mini">현재 선택: <b id="tplLabel">아이콩콩</b></span>
       </div>
       <div class="mini muted" style="margin-top:8px;">
@@ -185,7 +189,7 @@
   // 1) 프리셋 / 고정문구
   // =========================
 
-  // ✅ 아이콩콩: 정가/이벤트가 구조로 변경
+  // ✅ 아이콩콩: 정가/이벤트가 구조
   const IKONG_600 = [
     { label: "👉프리미엄600", size: "60cmx60cmx2.2cm", regularPrice: 24000, eventPrice: 22000 },
     { label: "👉스킨퓨어600", size: "60cmx60cmx2.2cm", regularPrice: 27000, eventPrice: 25000 },
@@ -294,11 +298,11 @@ A/S가 적용되지 않는 상품입니다`;
   }
 
   // ✅ 텍스트 취소선(카톡/텍스트용): 유니코드 결합 취소선
-function strikeText(text) {
-  const s = String(text);
-  const mark = "\u0336";
-  return s.replace(/[0-9,]/g, (ch) => ch + mark);
-}
+  function strikeText(text) {
+    const s = String(text);
+    const mark = "\u0336";
+    return s.replace(/[0-9,]/g, (ch) => ch + mark);
+  }
 
   // =========================
   // 3) 입력 수집
@@ -333,6 +337,13 @@ function strikeText(text) {
   // =========================
   // 4) 템플릿 빌더
   // =========================
+
+  // ✅ (추가) 아이콩콩 "양식만 변경" 토글 상태
+  // - true: 1200만 안내 + 리퍼브 설명/라인 출력 안 함 + 스킨퓨어 상단 + 10만원 추가할인 문구 포함
+  // - false: 기존 아이콩콩 기본양식(600/1200/리퍼브/푸터 등)
+  let ikongOnly1200Mode = false;
+  const IKONG_EXTRA_DISCOUNT = 100000;
+
   function buildIkongkong(data) {
     const { customerName,phone,siteName, pyeongType, extension, areasPreset, qty1200, qty600 } = data;
 
@@ -346,12 +357,61 @@ function strikeText(text) {
 ✿시공범위: ${formatAreasPreset(areasPreset)}
 ✿박람회행사가 프로모션적용`.trim();
 
+    // =========================
+    // ✅ (요청사항) 아이콩콩: 1200만 안내 모드
+    // - 1200만 출력
+    // - 리퍼브 설명/라인 출력 X
+    // - 스킨퓨어가 상단
+    // - 추가 할인 10만원 + 최종금액 출력
+    // =========================
+    if (ikongOnly1200Mode) {
+      if (!(qty1200 > 0)) {
+        return `${header}
+
+(1200 장수를 입력하면 출력됩니다.)`.trim();
+      }
+
+      const skin = IKONG_1200_PREMIUM.find(x => x.label.includes("스킨퓨어"));
+      const prem = IKONG_1200_PREMIUM.find(x => x.label.includes("프리미엄"));
+
+      const ordered = [skin, prem].filter(Boolean);
+
+      const blocks = [];
+
+      for (const p of ordered) {
+        const total = qty1200 * p.eventPrice;
+        const finalTotal = Math.max(0, total - IKONG_EXTRA_DISCOUNT);
+
+        const title = p.label.includes("스킨퓨어")
+          ? `${p.label} [띠내언니 PICK❤️]`
+          : `${p.label}`;
+
+        blocks.push(
+`${title}
+${p.size}
+❃장당: ${strikeText(formatWon(p.regularPrice))}
+❃이벤트가: ${formatWon(p.eventPrice)}
+❃예상수량: ${formatQty(qty1200)}
+❃총금액: ${formatWon(total)}
+✅추가 할인 10만원 적용
+✅총금액: ${formatWon(finalTotal)}`
+        );
+      }
+
+      return `${header}
+
+${blocks.join("\n\n")}`.trim();
+    }
+
+    // =========================
+    // (기존) 아이콩콩 기본 양식
+    // =========================
     const lines = [];
 
     // 프리미엄 라인업
     lines.push(`[프리미엄 라인업]`);
 
-    // 600 라인업 (정가 취소선 + 이벤트가 + 총금액(이벤트가 기준))
+    // 600 라인업
     if (qty600 > 0) {
       for (const p of IKONG_600) {
         const total = qty600 * p.eventPrice;
@@ -383,8 +443,8 @@ ${p.size}
 
     // 리퍼브 라인업 (1200 입력 있을 때만)
     if (qty1200 > 0) {
-   lines.push(`[리퍼브 라인업]`);
-   lines.push(IKONG_REFURB_DESC);
+      lines.push(`[리퍼브 라인업]`);
+      lines.push(IKONG_REFURB_DESC);
 
       for (const p of IKONG_1200_REFURB) {
         const total = qty1200 * p.eventPrice;
@@ -499,12 +559,23 @@ ${CASA_NOTICE}${reviewLine}`.trim();
   // =========================
   let currentTemplate = "ikong"; // "ikong" | "casa"
 
+  function updateIkongOnly1200Button() {
+    const btn = $("btnIkongOnly1200");
+    if (!btn) return;
+
+    // 아이콩콩일 때만 노출
+    btn.style.display = (currentTemplate === "ikong") ? "inline-block" : "none";
+    btn.textContent = ikongOnly1200Mode ? "아이콩콩: 1200만" : "아이콩콩: 기본";
+  }
+
   function setTemplate(tpl) {
     currentTemplate = tpl;
     const isIkong = tpl === "ikong";
     $("btnTplIkong").classList.toggle("active", isIkong);
     $("btnTplCasa").classList.toggle("active", !isIkong);
     $("tplLabel").textContent = isIkong ? "아이콩콩" : "까사플로아";
+
+    updateIkongOnly1200Button();
     generate();
   }
 
@@ -537,7 +608,6 @@ ${CASA_NOTICE}${reviewLine}`.trim();
     $("siteName").value = "";
     $("pyeongType").value = "";
 
-    // ✅ 버그 수정: 존재하는 값으로 초기화
     $("extension").value = "베확장";
     $("areasPreset").value = "";
 
@@ -575,6 +645,13 @@ ${CASA_NOTICE}${reviewLine}`.trim();
   $("btnTplIkong").addEventListener("click", () => setTemplate("ikong"));
   $("btnTplCasa").addEventListener("click", () => setTemplate("casa"));
 
+  // ✅ (추가) 아이콩콩 양식만 바뀌게 하는 버튼
+  $("btnIkongOnly1200").addEventListener("click", () => {
+    ikongOnly1200Mode = !ikongOnly1200Mode;
+    updateIkongOnly1200Button();
+    generate();
+  });
+
   $("qty1200").addEventListener("input", () => { update600Hint(); generate(); });
   $("qty600").addEventListener("input", generate);
   $("areasPreset").addEventListener("change", generate);
@@ -593,17 +670,8 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 
   // 최초 로드
   update600Hint();
+  updateIkongOnly1200Button();
   generate();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
