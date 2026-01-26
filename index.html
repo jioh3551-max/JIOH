@@ -364,19 +364,54 @@ A/S가 적용되지 않는 상품입니다`;
     // - 스킨퓨어가 상단
     // - 추가 할인 10만원 + 최종금액 출력
     // =========================
-    if (ikongOnly1200Mode) {
-      if (!(qty1200 > 0)) {
-        return `${header}
+    // ... buildIkongkong(data) 안에서
 
-(1200 장수를 입력하면 출력됩니다.)`.trim();
-      }
+if (ikongOnly1200Mode) {
+  if (!(qty1200 > 0)) {
+    return `${header}
 
-      const skin = IKONG_1200_PREMIUM.find(x => x.label.includes("스킨퓨어"));
-      const prem = IKONG_1200_PREMIUM.find(x => x.label.includes("프리미엄"));
+(1200 장수를 입력하면 출력됩니다.)
 
-      const ordered = [skin, prem].filter(Boolean);
+${IKONG_FOOTER}`.trim();
+  }
 
-      const blocks = [];
+  const skin = IKONG_1200_PREMIUM.find(x => x.label.includes("스킨퓨어"));
+  const prem = IKONG_1200_PREMIUM.find(x => x.label.includes("프리미엄"));
+
+  const ordered = [skin, prem].filter(Boolean);
+
+  const blocks = [];
+
+  for (const p of ordered) {
+    const total = qty1200 * p.eventPrice;
+    const finalTotal = Math.max(0, total - IKONG_EXTRA_DISCOUNT);
+
+    const title = p.label.includes("스킨퓨어")
+      ? `${p.label} [띠내언니 PICK❤️]`
+      : `${p.label}`;
+
+    blocks.push(
+`${title}
+${p.size}
+❃장당: ${strikeText(formatWon(p.regularPrice))}
+❃이벤트가: ${formatWon(p.eventPrice)}
+❃예상수량: ${formatQty(qty1200)}
+❃총금액: ${formatWon(total)}
+✅추가 할인 10만원 적용
+✅총금액: ${formatWon(finalTotal)}`
+    );
+  }
+
+  // ✅ 바뀌어도 푸터는 항상 출력
+  const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
+
+  return `${header}
+
+${blocks.join("\n\n")}
+
+${IKONG_FOOTER}${reviewLine}`.trim();
+}
+
 
       for (const p of ordered) {
         const total = qty1200 * p.eventPrice;
@@ -675,3 +710,4 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 </script>
 </body>
 </html>
+
