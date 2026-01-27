@@ -91,7 +91,7 @@
       <!-- ✅ 아이콩콩 눌렀을 때만 보이는 모드 버튼 -->
       <div id="ikongModeWrap" class="row ikong-mode-wrap">
         <button id="btnModeNormal" class="mode-btn active" type="button">일반</button>
-        <button id="btnModePick" class="mode-btn" type="button">띠네언니 PICK</button>
+        <button id="btnModePick" class="mode-btn" type="button">띠내언니 PICK</button>
         <span class="mode-hint">※ PICK: 1200만 출력 + 스킨퓨어 상단 + 10만원 추가할인 (+방 옵션은 유지)</span>
       </div>
 
@@ -463,7 +463,7 @@ A/S가 적용되지 않는 상품입니다`;
 ✿박람회행사가 프로모션적용`.trim();
 
     // =========================
-    // ✅ 띠네언니 PICK 모드
+    // ✅ 띠내언니 PICK 모드
     // =========================
     if (ikongMode === "pick") {
       const blocks = [];
@@ -478,7 +478,7 @@ A/S가 적용되지 않는 상품입니다`;
           const finalTotal = Math.max(0, total - IKONG_EXTRA_DISCOUNT);
 
           const title = p.label.includes("스킨퓨어")
-            ? `${p.label} [띠네언니 PICK❤️]`
+            ? `${p.label}띠내언니 PICK❤️]`
             : `${p.label}`;
 
           blocks.push(
@@ -817,3 +817,4 @@ ${CASA_NOTICE}${reviewLine}`.trim();
 </script>
 </body>
 </html>
+
