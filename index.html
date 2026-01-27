@@ -31,7 +31,7 @@
     button.tab { background:#e9ecf1; color:#111; }
     button.tab.active { background:#111; color:#fff; }
 
-    /* ✅ (추가) 아이콩콩 전용 모드 버튼 스타일 */
+    /* ✅ 아이콩콩 전용 모드 버튼 */
     .ikong-mode-wrap { margin-top: 10px; display:none; }
     .mode-btn{
       border:0; padding:10px 12px; border-radius:12px;
@@ -50,7 +50,7 @@
     @media (max-width: 720px){ .qty-grid { grid-template-columns: 1fr; } }
 
     .option-row{
-      display:flex; align-items:center; gap:12px;
+      display:flex; align-items:flex-start; gap:12px;
       padding: 10px 12px;
       border: 1px solid #e6eaf0;
       border-radius: 12px;
@@ -63,9 +63,10 @@
       min-width: 120px;
       font-size: 13px; color:#222;
       white-space: nowrap;
+      margin-top: 6px;
     }
     .option-row .check input{ width:18px; height:18px; }
-    .option-row .field{ flex:1; min-width: 220px; }
+    .option-row .field{ flex:1; min-width: 260px; }
     .option-row .field label{ margin:0 0 4px; font-size:12px; color:#555; }
     .option-row .field .sub{ font-size:12px; color:#999; margin-top:4px; }
 
@@ -81,18 +82,17 @@
     <div class="card">
       <h1>견적 템플릿 🔁 (아이콩콩 ↔ 까사플로아)</h1>
 
-      <!-- ✅ 기존 템플릿 탭(아이콩콩/까사플로아) -->
       <div class="row">
         <button id="btnTplIkong" class="tab active">아이콩콩 양식</button>
         <button id="btnTplCasa" class="tab">까사플로아 양식</button>
         <span class="mini">현재 선택: <b id="tplLabel">아이콩콩</b></span>
       </div>
 
-      <!-- ✅ (추가) 아이콩콩 눌렀을 때만 보이는 모드 버튼 -->
+      <!-- ✅ 아이콩콩 눌렀을 때만 보이는 모드 버튼 -->
       <div id="ikongModeWrap" class="row ikong-mode-wrap">
-        <button id="btnModeNormal" class="mode-btn active">일반</button>
-        <button id="btnModePick" class="mode-btn">띠네언니 PICK</button>
-        <span class="mode-hint">※ PICK 선택 시: 1200만 출력 + 스킨퓨어 상단 + 10만원 추가할인</span>
+        <button id="btnModeNormal" class="mode-btn active" type="button">일반</button>
+        <button id="btnModePick" class="mode-btn" type="button">띠네언니 PICK</button>
+        <span class="mode-hint">※ PICK: 1200만 출력 + 스킨퓨어 상단 + 10만원 추가할인 (+방 옵션은 유지)</span>
       </div>
 
       <div class="mini muted" style="margin-top:8px;">
@@ -161,16 +161,23 @@
         </div>
       </div>
 
-      <div class="option-row">
+      <!-- ✅ 방 옵션(여러 방 + 방 이름 변경) -->
+      <div class="option-row" id="roomsWrap">
         <label class="check">
-          <input id="optRoom" type="checkbox" />
+          <input id="optRooms" type="checkbox" />
           방 추가(옵션)
         </label>
 
         <div class="field">
-          <label>방 600 장수</label>
-          <input id="qty600Room" type="number" min="0" step="1" placeholder="30" disabled />
-          <div class="sub">※ 체크 시 출력에 “-방” + 방 전용 600 견적이 추가됩니다</div>
+          <div class="row" style="gap:8px; align-items:center;">
+            <button type="button" class="secondary" id="btnAddRoom" style="padding:8px 10px; border-radius:10px;" disabled>
+              + 방 추가
+            </button>
+            <span class="sub" id="roomsHint">※ 최대 3개까지 추가 가능</span>
+          </div>
+
+          <div id="roomsList" style="margin-top:10px; display:grid; gap:8px;"></div>
+          <div class="sub">※ 체크 후 방을 추가하면, 출력에 “-방(방이름)” + 방 전용 600 견적이 각각 추가됩니다</div>
         </div>
       </div>
 
@@ -186,9 +193,9 @@
       </div>
 
       <div class="action-row">
-        <button id="btnGenerate">견적 생성</button>
-        <button class="secondary" id="btnCopy">복사</button>
-        <button class="secondary" id="btnClear">초기화</button>
+        <button id="btnGenerate" type="button">견적 생성</button>
+        <button class="secondary" id="btnCopy" type="button">복사</button>
+        <button class="secondary" id="btnClear" type="button">초기화</button>
         <span id="status" class="mini"></span>
       </div>
     </div>
@@ -215,6 +222,7 @@
     { label: "👉스킨퓨어1200", size: "120cmx120cmx2.4cm", regularPrice: 130000, eventPrice: 120000 },
   ];
 
+  // (일반모드에서만 사용)
   const IKONG_REFURB_DESC =
 `리퍼브란? 생산과정에
 찍힘,눌림,색상차이,스크래치등이
@@ -225,6 +233,7 @@ A급과 동일하지만 미관상 단점이
 하자가 미리 존재하기에 무상
 A/S가 적용되지 않는 상품입니다`;
 
+  // (일반모드에서만 사용)
   const IKONG_1200_REFURB = [
     { label: "👉프리미엄1200(리퍼브)", size: "120cmx120cmx2.4cm", regularPrice: 100000, eventPrice:  98000 },
     { label: "👉스킨퓨어1200(리퍼브)", size: "120cmx120cmx2.4cm", regularPrice: 110000, eventPrice: 107000 },
@@ -320,6 +329,80 @@ A/S가 적용되지 않는 상품입니다`;
   }
 
   // =========================
+  // ✅ 방(여러개) 관리
+  // =========================
+  const MAX_ROOMS = 3;
+
+  function roomsEnabled() {
+    return $("optRooms")?.checked === true;
+  }
+
+  function getRoomCount() {
+    return $("roomsList")?.querySelectorAll(".room-item")?.length || 0;
+  }
+
+  function renderRoomAddButton() {
+    const btn = $("btnAddRoom");
+    if (!btn) return;
+    btn.disabled = !roomsEnabled() || getRoomCount() >= MAX_ROOMS;
+    const hint = $("roomsHint");
+    if (hint) hint.textContent = `※ 최대 ${MAX_ROOMS}개까지 추가 가능 (현재 ${getRoomCount()}개)`;
+  }
+
+  function makeRoomRow({ name = "작은방", qty = "" } = {}) {
+    const item = document.createElement("div");
+    item.className = "room-item";
+    item.style.display = "grid";
+    item.style.gridTemplateColumns = "1fr 1fr auto";
+    item.style.gap = "8px";
+    item.style.alignItems = "center";
+
+    item.innerHTML = `
+      <input class="room-name" placeholder="방 이름 (예: 작은방/안방/아이방)" value="${String(name).replace(/"/g, "&quot;")}" ${roomsEnabled() ? "" : "disabled"} />
+      <input class="room-qty" type="number" min="0" step="1" placeholder="600 장수" value="${qty}" ${roomsEnabled() ? "" : "disabled"} />
+      <button type="button" class="secondary room-del" style="padding:8px 10px; border-radius:10px;">삭제</button>
+    `;
+
+    item.querySelector(".room-del").addEventListener("click", () => {
+      item.remove();
+      renderRoomAddButton();
+      generate();
+    });
+
+    item.querySelector(".room-name").addEventListener("input", generate);
+    item.querySelector(".room-qty").addEventListener("input", generate);
+
+    return item;
+  }
+
+  function addRoom(defaultName) {
+    if (!roomsEnabled()) return;
+    if (getRoomCount() >= MAX_ROOMS) return;
+
+    const list = $("roomsList");
+    if (!list) return;
+
+    const idx = getRoomCount() + 1;
+    const name = defaultName || (idx === 1 ? "작은방" : idx === 2 ? "안방" : "아이방");
+    list.appendChild(makeRoomRow({ name, qty: "" }));
+
+    renderRoomAddButton();
+    generate();
+  }
+
+  function setRoomsUIEnabled(on) {
+    const list = $("roomsList");
+    if (!list) return;
+
+    list.querySelectorAll(".room-item").forEach((item) => {
+      item.querySelector(".room-name").disabled = !on;
+      item.querySelector(".room-qty").disabled = !on;
+    });
+
+    renderRoomAddButton();
+  }
+
+  // =========================
   // 3) 입력 수집
   // =========================
   function collectInput() {
@@ -335,8 +418,19 @@ A/S가 적용되지 않는 상품입니다`;
     const qty1200 = safeNum($("qty1200").value);
     const qty600 = safeNum($("qty600").value);
 
-    const optRoom = $("optRoom")?.checked || false;
-    const qty600Room = safeNum($("qty600Room")?.value);
+    const optRooms = $("optRooms")?.checked || false;
+
+    const rooms = [];
+    if (optRooms) {
+      const list = $("roomsList");
+      if (list) {
+        list.querySelectorAll(".room-item").forEach((item) => {
+          const name = item.querySelector(".room-name")?.value?.trim() || "방";
+          const qty = safeNum(item.querySelector(".room-qty")?.value);
+          if (qty > 0) rooms.push({ name, qty });
+        });
+      }
+    }
 
     const optReview = $("optReview")?.checked || false;
 
@@ -344,7 +438,7 @@ A/S가 적용되지 않는 상품입니다`;
       customerName, phone, siteName,
       pyeongType, extension, areasPreset,
       qty1200, qty600,
-      optRoom, qty600Room,
+      optRooms, rooms,
       optReview
     };
   }
@@ -352,8 +446,6 @@ A/S가 적용되지 않는 상품입니다`;
   // =========================
   // 4) 템플릿 빌더
   // =========================
-
-  // ✅ 아이콩콩 모드: "일반" | "pick"
   let ikongMode = "normal"; // "normal" | "pick"
   const IKONG_EXTRA_DISCOUNT = 100000;
 
@@ -372,37 +464,24 @@ A/S가 적용되지 않는 상품입니다`;
 
     // =========================
     // ✅ 띠네언니 PICK 모드
-    // - 1200만 출력
-    // - 리퍼브 설명/라인 출력 X
-    // - 스킨퓨어 상단 + [띠네언니 PICK❤️]
-    // - 추가 할인 10만원 + 최종금액
-    // - 푸터는 항상 출력(요청)
     // =========================
     if (ikongMode === "pick") {
-      if (!(qty1200 > 0)) {
-        const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
-        return `${header}
-
-(1200 장수를 입력하면 출력됩니다.)
-
-${IKONG_FOOTER}${reviewLine}`.trim();
-      }
-
-      const skin = IKONG_1200_PREMIUM.find(x => x.label.includes("스킨퓨어"));
-      const prem = IKONG_1200_PREMIUM.find(x => x.label.includes("프리미엄"));
-      const ordered = [skin, prem].filter(Boolean);
-
       const blocks = [];
 
-      for (const p of ordered) {
-        const total = qty1200 * p.eventPrice;
-        const finalTotal = Math.max(0, total - IKONG_EXTRA_DISCOUNT);
+      if (qty1200 > 0) {
+        const skin = IKONG_1200_PREMIUM.find(x => x.label.includes("스킨퓨어"));
+        const prem = IKONG_1200_PREMIUM.find(x => x.label.includes("프리미엄"));
+        const ordered = [skin, prem].filter(Boolean);
 
-        const title = p.label.includes("스킨퓨어")
-          ? `${p.label} [띠네언니 PICK❤️]`
-          : `${p.label}`;
+        for (const p of ordered) {
+          const total = qty1200 * p.eventPrice;
+          const finalTotal = Math.max(0, total - IKONG_EXTRA_DISCOUNT);
 
-        blocks.push(
+          const title = p.label.includes("스킨퓨어")
+            ? `${p.label} [띠네언니 PICK❤️]`
+            : `${p.label}`;
+
+          blocks.push(
 `${title}
 ${p.size}
 ❃장당: ${strikeText(formatWon(p.regularPrice))}
@@ -411,7 +490,32 @@ ${p.size}
 ❃총금액: ${formatWon(total)}
 ✅추가 할인 10만원 적용
 ✅총금액: ${formatWon(finalTotal)}`
-        );
+          );
+        }
+      } else {
+        blocks.push(`(1200 장수를 입력하면 출력됩니다.)`);
+      }
+
+      // ✅ PICK 모드에서도 방(여러 개) 출력: "방만" 추가로 나오게 유지
+      if (data.optRooms && Array.isArray(data.rooms) && data.rooms.length > 0) {
+        for (const room of data.rooms) {
+          const roomLines = [];
+          roomLines.push(`-방(${room.name})`);
+
+          for (const p of IKONG_600) {
+            const total = room.qty * p.eventPrice;
+            roomLines.push(
+`${p.label}
+${p.size}
+❃장당: ${strikeText(formatWon(p.regularPrice))}
+❃이벤트가: ${formatWon(p.eventPrice)}
+❃예상수량: ${formatQty(room.qty)}
+❃총금액: ${formatWon(total)}`
+            );
+          }
+
+          blocks.push(roomLines.join("\n\n"));
+        }
       }
 
       const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
@@ -474,24 +578,27 @@ ${p.size}
       }
     }
 
-    if (data.optRoom && data.qty600Room > 0) {
-      lines.push(``);
-      lines.push(`-방`);
+    // ✅ 일반 모드에서도 방(여러 개) 옵션 출력
+    if (data.optRooms && Array.isArray(data.rooms) && data.rooms.length > 0) {
+      for (const room of data.rooms) {
+        lines.push(``);
+        lines.push(`-방(${room.name})`);
 
-      for (const p of IKONG_600) {
-        const total = data.qty600Room * p.eventPrice;
-        lines.push(
+        for (const p of IKONG_600) {
+          const total = room.qty * p.eventPrice;
+          lines.push(
 `${p.label}
 ${p.size}
 ❃장당: ${strikeText(formatWon(p.regularPrice))}
 ❃이벤트가: ${formatWon(p.eventPrice)}
-❃예상수량: ${formatQty(data.qty600Room)}
+❃예상수량: ${formatQty(room.qty)}
 ❃총금액: ${formatWon(total)}`
-        );
+          );
+        }
       }
     }
 
-    const body = (qty600 > 0 || qty1200 > 0 || (data.optRoom && data.qty600Room > 0))
+    const body = (qty600 > 0 || qty1200 > 0 || (data.optRooms && data.rooms.length > 0))
       ? lines.join("\n\n")
       : "(장수를 입력하면 라인이 생성됩니다.)";
 
@@ -542,21 +649,25 @@ ${p.tail}`
       );
     }
 
-    if (data.optRoom && data.qty600Room > 0) {
-      const roomBlocks = [];
-      roomBlocks.push(`-방`);
+    // ✅ 까사플로아에도 방 옵션(여러개) 출력(기존 기능 범위 내)
+    if (data.optRooms && Array.isArray(data.rooms) && data.rooms.length > 0) {
+      for (const room of data.rooms) {
+        const roomBlocks = [];
+        roomBlocks.push(`-방(${room.name})`);
 
-      for (const p of CASA_600) {
-        const total = data.qty600Room * p.unitPrice;
-        roomBlocks.push(
+        for (const p of CASA_600) {
+          const total = room.qty * p.unitPrice;
+          roomBlocks.push(
 `${p.title}
 ${p.size}
-예상장수: ${formatQty(data.qty600Room)}
+예상장수: ${formatQty(room.qty)}
 예상금액: ${formatWon(total)}
 (행사가 장당 ${formatWon(p.unitPrice)})`
-        );
+          );
+        }
+
+        blocks.push(roomBlocks.join("\n\n"));
       }
-      blocks.push(roomBlocks.join("\n\n"));
     }
 
     const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
@@ -628,14 +739,16 @@ ${CASA_NOTICE}${reviewLine}`.trim();
     $("qty1200").value = "";
     $("qty600").value = "";
 
-    $("optRoom").checked = false;
-    $("qty600Room").value = "";
-    $("qty600Room").disabled = true;
+    // ✅ 방 옵션 초기화
+    $("optRooms").checked = false;
+    $("roomsList").innerHTML = "";
+    setRoomsUIEnabled(false);
 
     $("optReview").checked = false;
 
     $("output").value = "";
     update600Hint();
+    renderRoomAddButton();
     setStatus("초기화 완료", true);
   }
 
@@ -659,7 +772,7 @@ ${CASA_NOTICE}${reviewLine}`.trim();
   $("btnTplIkong").addEventListener("click", () => setTemplate("ikong"));
   $("btnTplCasa").addEventListener("click", () => setTemplate("casa"));
 
-  // ✅ 아이콩콩 모드 버튼(직관: active 색상 변화)
+  // ✅ 아이콩콩 모드 버튼(색상 토글)
   $("btnModeNormal").addEventListener("click", () => {
     ikongMode = "normal";
     updateIkongModeUI();
@@ -675,14 +788,22 @@ ${CASA_NOTICE}${reviewLine}`.trim();
   $("qty600").addEventListener("input", generate);
   $("areasPreset").addEventListener("change", generate);
 
-  // 방 옵션
-  $("optRoom")?.addEventListener("change", () => {
-    const on = $("optRoom").checked;
-    $("qty600Room").disabled = !on;
-    if (!on) $("qty600Room").value = "";
+  // ✅ 방 옵션(여러 방)
+  $("optRooms")?.addEventListener("change", () => {
+    const on = $("optRooms").checked;
+
+    if (!on) {
+      $("roomsList").innerHTML = "";
+    } else {
+      // 처음 켤 때 기본 1개 자동 추가
+      if (getRoomCount() === 0) addRoom("작은방");
+    }
+
+    setRoomsUIEnabled(on);
     generate();
   });
-  $("qty600Room")?.addEventListener("input", generate);
+
+  $("btnAddRoom")?.addEventListener("click", () => addRoom());
 
   // 리뷰 이벤트
   $("optReview")?.addEventListener("change", generate);
@@ -690,6 +811,8 @@ ${CASA_NOTICE}${reviewLine}`.trim();
   // 최초 로드
   update600Hint();
   updateIkongModeUI();
+  setRoomsUIEnabled(false);
+  renderRoomAddButton();
   generate();
 </script>
 </body>
