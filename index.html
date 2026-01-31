@@ -263,10 +263,11 @@ A/S가 적용되지 않는 상품입니다`;
     { title: "💕스킨퓨어1200 (24T)", size: "120cmx120cmx2.4cm", unitPrice: 119000, tail: "(행사가 장당 119,000원)" },
   ];
 const REVIEW_TEXT = "☑️리뷰이벤트: 총9만원 페이백혜택 (블로그3만/카페3만/인스타3만)";
-  const CASA_NOTICE =
-`☑️프리미엄&클래식: 크림톤, 베이지, 그레이
+ const CASA_NOTICE_HEAD =
+`☑️프리미엄&클래식: 크림톤, 베이지, 그레이`;
 
-☑️스킨퓨어: 베이지
+const CASA_NOTICE_BODY =
+`☑️스킨퓨어: 베이지
 
 ☑️예상수량은 800가구 이상의 평균데이터 및 온라인도면을 통해 산출된 양으로, 실제시공시 약간의 오차범위 발생될 수 있습니다.
 
@@ -677,7 +678,9 @@ return `${header}${reviewLine}
 
 ${blocks.join("\n\n")}
 
-${CASA_NOTICE}`.trim();
+${CASA_NOTICE_HEAD}
+
+${CASA_NOTICE_BODY}`.trim();
   }
 
   // =========================
@@ -818,6 +821,7 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
