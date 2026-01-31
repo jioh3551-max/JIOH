@@ -671,9 +671,9 @@ ${p.size}
       }
     }
 
-    const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}` : "";
+    const reviewLine = data.optReview ? `\n\n${REVIEW_TEXT}\n` : "";
 
-    return `${header}
+return `${header}${reviewLine}
 
 ${blocks.join("\n\n")}
 
@@ -818,6 +818,7 @@ ${CASA_NOTICE}`.trim();
 </script>
 </body>
 </html>
+
 
 
 
