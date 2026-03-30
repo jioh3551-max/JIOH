@@ -264,6 +264,9 @@ A/S가 적용되지 않는 상품입니다`;
     { title: "💕스킨퓨어1200 (24T)", size: "120cmx120cmx2.4cm", unitPrice: 119000, tail: "(행사가 장당 119,000원)" },
   ];
 
+  const CASA_FREE_SERVICE_LINE = "☑️전문시공서비스 & 출장비는 모두 무료입니다.";
+  const CASA_SINGLE_SPACE_FEE_LINE = "☑️1공간 단독 시공 시(예: 거실, 방) 출장비 100,000원이 별도 발생되겠습니다.";
+
   const CASA_NOTICE =
     
 `☑️프리미엄&클래식: 크림톤, 베이지, 그레이
@@ -282,7 +285,7 @@ A/S가 적용되지 않는 상품입니다`;
 
 ☑️프로모션은 시공일 기준이 아닌, 예약일 기준으로 적용 고정되겠습니다.
 
-☑️전문시공서비스 & 출장비는 모두 무료입니다.
+${CASA_FREE_SERVICE_LINE}
 
 ☑️타브랜드 전문시공 기사님들도 인정한 매트품질! 까사플로아를 통해 후회없는 선택과 중복지출을 예방하세요♥`;
 
@@ -616,15 +619,19 @@ ${IKONG_FOOTER}`.trim();
 
     const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
     const areasLine = formatAreasPreset(areasPreset);
+    const isSingleAreaQuote = areasPreset === "거실";
 
-    const header =
-`☀️까사플로아 층간소음매트
-✔️성함: ${customerName} 님
-✔️번호: ${phone || "카톡채널상담"}
-${siteName ? `✔️${siteName}` : ""}
-✔️평형타입: ${pyeongLine}
-✔️시공공간: ${areasLine}
-✔️본사 전문가시공 무료제공`.trim();
+    const headerLines = [
+      "☀️까사플로아 층간소음매트",
+      `✔️성함: ${customerName} 님`,
+      `✔️번호: ${phone || "카톡채널상담"}`,
+      siteName ? `✔️${siteName}` : "",
+      `✔️평형타입: ${pyeongLine}`,
+      `✔️시공공간: ${areasLine}`,
+      isSingleAreaQuote ? "" : "✔️본사 전문가시공 무료제공",
+    ].filter(Boolean);
+
+    const header = headerLines.join("\n");
 
     const blocks = [];
 
@@ -676,7 +683,10 @@ ${p.size}
     const colorLine = "☑️프리미엄&클래식: 크림톤, 베이지, 그레이";
     const reviewLine = data.optReview ? `${REVIEW_TEXT}\n\n` : "";
 
-    const noticeBody = CASA_NOTICE.replace(colorLine, "").trim();
+    const noticeBody = CASA_NOTICE
+      .replace(colorLine, "")
+      .replace(CASA_FREE_SERVICE_LINE, isSingleAreaQuote ? CASA_SINGLE_SPACE_FEE_LINE : CASA_FREE_SERVICE_LINE)
+      .trim();
 
     return `${header}
 
