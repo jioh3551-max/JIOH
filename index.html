@@ -142,6 +142,11 @@
           </select>
           <div class="hint muted">※ 선택한 값이 “시공범위/시공공간”에 그대로 출력됩니다</div>
         </div>
+        <div>
+          <label>시공공간 직접입력</label>
+          <input id="areasCustom" placeholder="예: 거실, 복도, 펜트리" />
+          <div class="hint muted">직접입력 값이 있으면 선택값보다 우선 반영됩니다.</div>
+        </div>
       </div>
     </div>
 
@@ -326,6 +331,12 @@ ${CASA_FREE_SERVICE_LINE}
     return v || "(미선택)";
   }
 
+  function getAreasValue(areasPreset, areasCustom) {
+    const custom = (areasCustom || "").trim();
+    if (custom) return custom;
+    return areasPreset || "";
+  }
+
   // ✅ 텍스트 취소선(카톡/텍스트용): 유니코드 결합 취소선
   function strikeText(text) {
     const s = String(text);
@@ -419,6 +430,7 @@ ${CASA_FREE_SERVICE_LINE}
     const extension = $("extension").value;
 
     const areasPreset = $("areasPreset").value;
+    const areasCustom = $("areasCustom").value.trim();
 
     const qty1200 = safeNum($("qty1200").value);
     const qty600 = safeNum($("qty600").value);
@@ -441,7 +453,7 @@ ${CASA_FREE_SERVICE_LINE}
 
     return {
       customerName, phone, siteName,
-      pyeongType, extension, areasPreset,
+      pyeongType, extension, areasPreset, areasCustom,
       qty1200, qty600,
       optRooms, rooms,
       optReview
@@ -455,7 +467,8 @@ ${CASA_FREE_SERVICE_LINE}
   const IKONG_EXTRA_DISCOUNT = 100000;
 
   function buildIkongkong(data) {
-    const { customerName,phone,siteName, pyeongType, extension, areasPreset, qty1200, qty600 } = data;
+    const { customerName,phone,siteName, pyeongType, extension, areasPreset, areasCustom, qty1200, qty600 } = data;
+    const areasValue = getAreasValue(areasPreset, areasCustom);
 
     const header =
 `❄️"아이콩콩매트" 견적 안내서
@@ -464,7 +477,7 @@ ${CASA_FREE_SERVICE_LINE}
 ✿연락처: ${phone || "카톡채널상담"}
 ✿지역: ${siteName || ""}
 ✿평형: ${pyeongType || ""}${pyeongType ? " " : ""}${extension ? `(${extension})` : ""}
-✿시공범위: ${formatAreasPreset(areasPreset)}
+✿시공범위: ${formatAreasPreset(areasValue)}
 ✿박람회행사가 프로모션적용`.trim();
 
     // =========================
@@ -615,11 +628,12 @@ ${IKONG_FOOTER}`.trim();
   }
 
   function buildCasaflora(data) {
-    const { customerName, phone, siteName, pyeongType, extension, areasPreset, qty1200, qty600 } = data;
+    const { customerName, phone, siteName, pyeongType, extension, areasPreset, areasCustom, qty1200, qty600 } = data;
+    const areasValue = getAreasValue(areasPreset, areasCustom);
 
     const pyeongLine = pyeongType ? `${pyeongType} (${extension})` : `(${extension})`;
-    const areasLine = formatAreasPreset(areasPreset);
-    const isSingleAreaQuote = areasPreset === "거실";
+    const areasLine = formatAreasPreset(areasValue);
+    const isSingleAreaQuote = areasValue === "거실";
 
     const headerLines = [
       "☀️까사플로아 층간소음매트",
@@ -753,6 +767,7 @@ ${noticeBody}`.trim();
 
     $("extension").value = "베확장";
     $("areasPreset").value = "";
+    $("areasCustom").value = "";
 
     $("qty1200").value = "";
     $("qty600").value = "";
@@ -806,6 +821,7 @@ ${noticeBody}`.trim();
   $("qty1200").addEventListener("input", () => { update600Hint(); generate(); });
   $("qty600").addEventListener("input", generate);
   $("areasPreset").addEventListener("change", generate);
+  $("areasCustom").addEventListener("input", generate);
 
   // ✅ 방 옵션(여러 방)
   $("optRooms")?.addEventListener("change", () => {
